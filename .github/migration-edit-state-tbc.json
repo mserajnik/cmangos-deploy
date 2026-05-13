@@ -1,0 +1,23 @@
+{
+  "world": {
+    "core": {
+      "commit": "a16a48b1e37db278f714d8cb009031f359663c2e",
+      "subject": "Expand spell_threat insertions after previous commit"
+    },
+    "database": {
+      "commit": "6792b573541450d2720eaefa29db1f6c29ac2039",
+      "subject": "[Instance] Kara: Remove old path for c.guid 5320725"
+    },
+    "playerbots": null
+  },
+  "characters": {
+    "core": null,
+    "playerbots": null
+  },
+  "realmd": {
+    "core": null
+  },
+  "logs": {
+    "core": null
+  }
+}

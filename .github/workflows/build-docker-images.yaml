@@ -1,0 +1,250 @@
+name: Build and push Docker images
+
+on:
+  # Build images daily.
+  schedule:
+    - cron: 0 0 * * *
+  push:
+    branches:
+      - master
+    paths:
+      - .dockerignore
+      - .github/scripts/**
+      - .github/workflows/build-and-push-image.yaml
+      - .github/workflows/build-docker-images.yaml
+      - .github/workflows/build-custom-docker-images.yaml
+      - docker/**
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .dockerignore
+      - .github/scripts/**
+      - .github/workflows/build-and-push-image.yaml
+      - .github/workflows/build-docker-images.yaml
+      - .github/workflows/build-custom-docker-images.yaml
+      - docker/**
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        type: boolean
+        description: Force rebuild (even if images for the latest commits already exist)
+        default: false
+
+# Serialize concurrent runs so they cannot race on the state file push.
+concurrency:
+  group: build-docker-images
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: read
+    outputs:
+      build_metadata: ${{ steps.prepare-default-build.outputs.build_metadata }}
+      expansions_to_build: ${{ steps.prepare-default-build.outputs.expansions_to_build }}
+      any_images_to_build: ${{ steps.prepare-default-build.outputs.any_images_to_build }}
+      migration_edits: ${{ steps.migration-edits.outputs.migration_edits }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Compares every upstream reference cmangos-deploy depends on (patched
+      # MariaDB entrypoint, bundled config templates, root `CMakeLists.txt`
+      # files where new build deps would surface, the upstream DB install
+      # scripts our `db-functions.sh` re-implements, ...) against its current
+      # upstream revision. The pinned SHAs anchor what each was last reviewed
+      # against; bump the matching SHA below after refreshing the local copy.
+      - name: Check for upstream drift
+        id: upstream-drift-check
+        env:
+          # When bumping `MARIADB_DOCKER_KNOWN_SHA`, also update the matching
+          # SHA in `docker/database/Dockerfile` and the header comment in
+          # `docker/database/docker-entrypoint.sh` so all three stay in sync.
+          MARIADB_DOCKER_KNOWN_SHA: 66972bc2e0c6fd33dcd5d98de0653c5696a1166e
+          CMANGOS_CLASSIC_KNOWN_SHA: 1aea167db3494eb4fe9667227b886d2f662627f6
+          CMANGOS_TBC_KNOWN_SHA: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
+          CMANGOS_WOTLK_KNOWN_SHA: fef8d93190482aaacf42f8831ae377bf7710925f
+          CLASSIC_DB_KNOWN_SHA: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
+          TBC_DB_KNOWN_SHA: 7d5224900b2cc484de5e06fa101965703ea27a0a
+          WOTLK_DB_KNOWN_SHA: cb487b287aa1980aff157f8557999aeada505018
+          PLAYERBOTS_KNOWN_SHA: c33dfac220eb624761b6737324071ad7fae5b39f
+        run: ./.github/scripts/check-upstream-drift.sh
+
+      # We check if the workflow was triggered by a schedule and if today is
+      # Monday, in which case we want to trigger a (re)build in any case (to
+      # keep the Docker images up-to-date).
+      #
+      # We also check if the "force rebuild" input is checked when the workflow
+      # is triggered manually; if yes, we also want to (re)build.
+      - name: Prepare default build
+        id: prepare-default-build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+          PACKAGE_NAME_PREFIX: cmangos-database
+          CORE_REPOSITORY_OWNER: cmangos
+          CORE_REPOSITORY_REVISION: master
+          DATABASE_REPOSITORY_OWNER: cmangos
+          DATABASE_REPOSITORY_REVISION: master
+          PLAYERBOTS_REPOSITORY_OWNER: cmangos
+          PLAYERBOTS_REPOSITORY_NAME: playerbots
+          PLAYERBOTS_REPOSITORY_REVISION: master
+          FORCE_REBUILD: ${{ inputs.force_rebuild }}
+        run: ./.github/scripts/prepare-default-build.sh
+
+      # Resolve each previous build's per-source CMaNGOS commits by reading the
+      # most recent combined revision tag of each published database image.
+      - name: Read previous builds' CMaNGOS commits
+        id: read-last-built-commits
+        if: ${{ steps.prepare-default-build.outputs.any_images_to_build == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+          CORE_REPOSITORY_OWNER: cmangos
+          DATABASE_REPOSITORY_OWNER: cmangos
+          PLAYERBOTS_REPOSITORY_OWNER: cmangos
+          PLAYERBOTS_REPOSITORY_NAME: playerbots
+        run: ./.github/scripts/resolve-last-built-commits.sh
+
+      - name: Compute migration edit state
+        id: migration-edits
+        if: ${{ steps.prepare-default-build.outputs.any_images_to_build == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_METADATA: ${{ steps.prepare-default-build.outputs.build_metadata }}
+          LAST_BUILT_COMMITS: ${{ steps.read-last-built-commits.outputs.last_built_commits }}
+          CORE_REPOSITORY_OWNER: cmangos
+          DATABASE_REPOSITORY_OWNER: cmangos
+          PLAYERBOTS_REPOSITORY_OWNER: cmangos
+          PLAYERBOTS_REPOSITORY_NAME: playerbots
+        run: ./.github/scripts/prepare-migration-edits.sh
+
+      # Auto-commit the state file when the scan flagged a new migration edit.
+      # The push uses `GITHUB_TOKEN` which, by GitHub policy, does not
+      # retrigger workflows.
+      # Commits via GitHub's GraphQL `createCommitOnBranch` mutation so the
+      # resulting commit is signed by GitHub server-side and shows up as
+      # Verified; a plain `git commit && git push` over `GITHUB_TOKEN` would
+      # produce an unsigned commit.
+      - name: Commit migration edit state if changed
+        if: ${{ steps.prepare-default-build.outputs.any_images_to_build == 'true' && github.event_name != 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+          REPO_NWO: ${{ github.repository }}
+        run: |
+          ./.github/scripts/commit-via-api.sh "Update migration edit state" \
+            .github/migration-edit-state-classic.json \
+            .github/migration-edit-state-tbc.json \
+            .github/migration-edit-state-wotlk.json
+
+  build-and-push-server-images:
+    name: Build and push server images
+    needs: setup
+    if: ${{ needs.setup.outputs.any_images_to_build == 'true' }}
+    strategy:
+      fail-fast: true
+      matrix:
+        expansion: ${{ fromJSON(needs.setup.outputs.expansions_to_build) }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-and-push-image.yaml
+    with:
+      workflow_mode: default
+      image_kind: server
+      architectures: both
+      push_images: ${{ github.event_name != 'pull_request' }}
+      expansion: ${{ matrix.expansion }}
+      core_repository_url: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].core_repository_url }}
+      core_commit_hash: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].core_commit_hash }}
+      database_repository_url: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].database_repository_url }}
+      database_commit_hash: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].database_commit_hash }}
+      playerbots_repository_url: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].playerbots_repository_url }}
+      playerbots_commit_hash: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].playerbots_commit_hash }}
+      combined_revision_tag: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].combined_revision_tag }}
+
+  # We build database images only after the server build succeeds; otherwise, a
+  # failure there could leave the latest database images out of sync.
+  build-and-push-database-images:
+    name: Build and push database images
+    needs: [setup, build-and-push-server-images]
+    if: ${{ needs.setup.outputs.any_images_to_build == 'true' }}
+    strategy:
+      fail-fast: true
+      matrix:
+        expansion: ${{ fromJSON(needs.setup.outputs.expansions_to_build) }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-and-push-image.yaml
+    with:
+      workflow_mode: default
+      image_kind: database
+      architectures: both
+      push_images: ${{ github.event_name != 'pull_request' }}
+      expansion: ${{ matrix.expansion }}
+      core_repository_url: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].core_repository_url }}
+      core_commit_hash: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].core_commit_hash }}
+      database_repository_url: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].database_repository_url }}
+      database_commit_hash: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].database_commit_hash }}
+      playerbots_repository_url: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].playerbots_repository_url }}
+      playerbots_commit_hash: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].playerbots_commit_hash }}
+      combined_revision_tag: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].combined_revision_tag }}
+      migration_edits: ${{ fromJSON(needs.setup.outputs.migration_edits)[matrix.expansion] }}
+
+  delete-old-package-versions:
+    name: Delete old package versions
+    needs: [setup, build-and-push-server-images, build-and-push-database-images]
+    if: ${{ needs.setup.outputs.any_images_to_build == 'true' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        package_name:
+          - cmangos-server-classic
+          - cmangos-server-tbc
+          - cmangos-server-wotlk
+          - cmangos-database-classic
+          - cmangos-database-tbc
+          - cmangos-database-wotlk
+
+    steps:
+      - name: Delete old package versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.package_name }}
+          package-type: container
+          # Each multi-arch image publish creates one image index plus two
+          # image manifests. Keeping 40 builds per package therefore means
+          # keeping 120 package versions.
+          min-versions-to-keep: 120
+
+  update-badges:
+    name: Update badges
+    needs: [setup, build-and-push-server-images, build-and-push-database-images, delete-old-package-versions]
+    if: ${{ needs.setup.outputs.any_images_to_build == 'true' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Upload badge JSON files to web server
+        env:
+          BADGES_FTP_HOST: ${{ secrets.BADGES_FTP_HOST }}
+          BADGES_FTP_USERNAME: ${{ secrets.BADGES_FTP_USERNAME }}
+          BADGES_FTP_PASSWORD: ${{ secrets.BADGES_FTP_PASSWORD }}
+          CLASSIC_TAG: ${{ fromJSON(needs.setup.outputs.build_metadata).classic.combined_revision_tag }}
+          TBC_TAG: ${{ fromJSON(needs.setup.outputs.build_metadata).tbc.combined_revision_tag }}
+          WOTLK_TAG: ${{ fromJSON(needs.setup.outputs.build_metadata).wotlk.combined_revision_tag }}
+        run: ./.github/scripts/upload-badges.sh

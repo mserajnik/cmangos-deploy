@@ -1,0 +1,172 @@
+name: Build and push custom Docker images
+
+on:
+  workflow_dispatch:
+    inputs:
+      expansion:
+        type: choice
+        required: true
+        description: Which expansion should be built?
+        options:
+          - classic
+          - tbc
+          - wotlk
+        default: classic
+      core_repository_url:
+        type: string
+        required: false
+        description: (Optional) Override for the core repository URL (defaults to the canonical CMaNGOS repository for the chosen expansion)
+      core_revision:
+        type: string
+        required: true
+        description: The core repository revision to use
+        default: master
+      database_repository_url:
+        type: string
+        required: false
+        description: (Optional) Override for the database repository URL (defaults to the canonical CMaNGOS repository for the chosen expansion)
+      database_revision:
+        type: string
+        required: true
+        description: The database repository revision to use
+        default: master
+      playerbots_repository_url:
+        type: string
+        required: true
+        description: The Playerbots repository URL to use
+        default: https://github.com/cmangos/playerbots.git
+      playerbots_revision:
+        type: string
+        required: true
+        description: The Playerbots repository revision to use
+        default: master
+      patches_repository_url:
+        type: string
+        required: false
+        description: (Optional) A URL to a repository that contains patches to apply to the core code (patches have to end in `.patch` and be located in either `all/` for patches applied to every expansion's build or `<expansion>/` (e.g., `tbc/`) for patches applied only to that expansion's build)
+      custom_tag_fragment:
+        type: string
+        required: false
+        description: (Optional) A custom name to use as part of the image tags (when provided, this overrides the default `{ core_owner }-{ core_repository }-core.{ revision }-db.{ revision }-playerbots.{ revision }` naming scheme)
+      architectures:
+        type: choice
+        required: true
+        description: Which architectures should images be built for?
+        options:
+          - "Both amd64 and arm64"
+          - "amd64 only"
+          - "arm64 only"
+        default: "Both amd64 and arm64"
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      core_repository_url: ${{ steps.resolve-defaults.outputs.core_repository_url }}
+      database_repository_url: ${{ steps.resolve-defaults.outputs.database_repository_url }}
+      core_repository_owner: ${{ steps.parse-core-url.outputs.repository_owner }}
+      core_repository_name: ${{ steps.parse-core-url.outputs.repository_name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Same drift check as the default build workflow; see that workflow for
+      # the rationale and the SHA-bump procedure.
+      - name: Check for upstream drift
+        id: upstream-drift-check
+        env:
+          # When bumping `MARIADB_DOCKER_KNOWN_SHA`, also update the matching
+          # SHA in `docker/database/Dockerfile` and the header comment in
+          # `docker/database/docker-entrypoint.sh` so all three stay in sync.
+          MARIADB_DOCKER_KNOWN_SHA: 66972bc2e0c6fd33dcd5d98de0653c5696a1166e
+          CMANGOS_CLASSIC_KNOWN_SHA: 1aea167db3494eb4fe9667227b886d2f662627f6
+          CMANGOS_TBC_KNOWN_SHA: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
+          CMANGOS_WOTLK_KNOWN_SHA: fef8d93190482aaacf42f8831ae377bf7710925f
+          CLASSIC_DB_KNOWN_SHA: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
+          TBC_DB_KNOWN_SHA: 7d5224900b2cc484de5e06fa101965703ea27a0a
+          WOTLK_DB_KNOWN_SHA: cb487b287aa1980aff157f8557999aeada505018
+          PLAYERBOTS_KNOWN_SHA: c33dfac220eb624761b6737324071ad7fae5b39f
+        run: ./.github/scripts/check-upstream-drift.sh
+
+      # Falls back to the canonical CMaNGOS repository for the chosen expansion
+      # when no override has been provided.
+      - name: Resolve custom build defaults
+        id: resolve-defaults
+        env:
+          EXPANSION: ${{ inputs.expansion }}
+          CORE_REPOSITORY_URL_INPUT: ${{ inputs.core_repository_url }}
+          DATABASE_REPOSITORY_URL_INPUT: ${{ inputs.database_repository_url }}
+        run: ./.github/scripts/resolve-custom-defaults.sh
+
+      # The following Git repository URL formats are supported:
+      #
+      # SSH URLs:
+      # - git@github.com:owner/repo.git
+      # - git@gitlab.com:owner/repo.git
+      # - git@gitea.example.com:owner/repository.git
+      # - git@bitbucket.org:owner/repository.git
+      #
+      # HTTPS URLs:
+      # - https://github.com/owner/repo.git
+      # - https://gitlab.com/owner/repo.git
+      # - https://gitea.example.com/owner/repository.git
+      # - https://bitbucket.org/owner/repository.git
+      - name: Parse core repository URL
+        id: parse-core-url
+        env:
+          REPOSITORY_URL: ${{ steps.resolve-defaults.outputs.core_repository_url }}
+        run: ./.github/scripts/parse-repository-url.sh
+
+  build-and-push-server-images:
+    name: Build and push server images
+    needs: setup
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-and-push-image.yaml
+    with:
+      workflow_mode: custom
+      image_kind: server
+      architectures: ${{ inputs.architectures }}
+      push_images: true
+      expansion: ${{ inputs.expansion }}
+      core_repository_url: ${{ needs.setup.outputs.core_repository_url }}
+      core_repository_owner: ${{ needs.setup.outputs.core_repository_owner }}
+      core_repository_name: ${{ needs.setup.outputs.core_repository_name }}
+      core_revision: ${{ inputs.core_revision }}
+      database_repository_url: ${{ needs.setup.outputs.database_repository_url }}
+      database_revision: ${{ inputs.database_revision }}
+      playerbots_repository_url: ${{ inputs.playerbots_repository_url }}
+      playerbots_revision: ${{ inputs.playerbots_revision }}
+      patches_repository_url: ${{ inputs.patches_repository_url }}
+      custom_tag_fragment: ${{ inputs.custom_tag_fragment }}
+
+  # We build database images only after the server build succeeds; otherwise, a
+  # failure there could leave the latest database images out of sync.
+  build-and-push-database-images:
+    name: Build and push database images
+    needs: [setup, build-and-push-server-images]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-and-push-image.yaml
+    with:
+      workflow_mode: custom
+      image_kind: database
+      architectures: ${{ inputs.architectures }}
+      push_images: true
+      expansion: ${{ inputs.expansion }}
+      core_repository_url: ${{ needs.setup.outputs.core_repository_url }}
+      core_repository_owner: ${{ needs.setup.outputs.core_repository_owner }}
+      core_repository_name: ${{ needs.setup.outputs.core_repository_name }}
+      core_revision: ${{ inputs.core_revision }}
+      database_repository_url: ${{ needs.setup.outputs.database_repository_url }}
+      database_revision: ${{ inputs.database_revision }}
+      playerbots_repository_url: ${{ inputs.playerbots_repository_url }}
+      playerbots_revision: ${{ inputs.playerbots_revision }}
+      patches_repository_url: ${{ inputs.patches_repository_url }}
+      custom_tag_fragment: ${{ inputs.custom_tag_fragment }}

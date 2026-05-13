@@ -1,0 +1,17 @@
+{
+  "world": {
+    "core": null,
+    "database": null,
+    "playerbots": null
+  },
+  "characters": {
+    "core": null,
+    "playerbots": null
+  },
+  "realmd": {
+    "core": null
+  },
+  "logs": {
+    "core": null
+  }
+}

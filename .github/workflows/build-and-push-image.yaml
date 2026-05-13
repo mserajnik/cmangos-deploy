@@ -1,0 +1,309 @@
+name: "Internal: Build and push Docker image"
+
+# Internal reusable workflow that is called from the public image build
+# workflows. It is not intended to be triggered manually. GitHub currently does
+# not provide a way to hide reusable workflows from the Actions UI:
+# https://github.com/orgs/community/discussions/12025
+on:
+  workflow_call:
+    inputs:
+      workflow_mode:
+        type: string
+        required: true
+      image_kind:
+        type: string
+        required: true
+      architectures:
+        type: string
+        required: true
+      push_images:
+        type: boolean
+        required: true
+      expansion:
+        type: string
+        required: true
+      core_repository_url:
+        type: string
+        required: true
+      database_repository_url:
+        type: string
+        required: true
+      playerbots_repository_url:
+        type: string
+        required: true
+      core_commit_hash:
+        type: string
+        required: false
+      database_commit_hash:
+        type: string
+        required: false
+      playerbots_commit_hash:
+        type: string
+        required: false
+      combined_revision_tag:
+        type: string
+        required: false
+      core_repository_owner:
+        type: string
+        required: false
+      core_repository_name:
+        type: string
+        required: false
+      core_revision:
+        type: string
+        required: false
+      database_revision:
+        type: string
+        required: false
+      playerbots_revision:
+        type: string
+        required: false
+      patches_repository_url:
+        type: string
+        required: false
+      custom_tag_fragment:
+        type: string
+        required: false
+      migration_edits:
+        type: string
+        required: false
+
+env:
+  REGISTRY: ghcr.io
+  CMANGOS_PATCHES_REPOSITORY_URL: ${{ inputs.workflow_mode == 'default' && 'https://github.com/mserajnik/cmangos-deploy-patches.git' || inputs.patches_repository_url }}
+  OCI_ANNOTATION_AUTHORS: ${{ vars.OCI_ANNOTATION_AUTHORS || github.repository_owner }}
+  OCI_ANNOTATION_URL: https://github.com/${{ github.repository }}
+  OCI_ANNOTATION_DOCUMENTATION: https://github.com/${{ github.repository }}/blob/master/README.md
+  OCI_ANNOTATION_SOURCE: https://github.com/${{ github.repository }}
+  OCI_ANNOTATION_VENDOR: ${{ vars.OCI_ANNOTATION_VENDOR || github.repository_owner }}
+  OCI_ANNOTATION_LICENSES: GPL-2.0-or-later
+  OCI_ANNOTATION_SERVER_TITLE: ${{ format('cmangos-deploy - {0}CMaNGOS {1} server image', inputs.workflow_mode == 'custom' && 'Custom ' || '', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
+  OCI_ANNOTATION_SERVER_DESCRIPTION: ${{ format('CMaNGOS {0} is a server emulator supporting version {1}.', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK', inputs.expansion == 'classic' && '1.12.1' || inputs.expansion == 'tbc' && '2.4.3' || '3.3.5a') }}
+  OCI_ANNOTATION_SERVER_BASE_NAME: ubuntu:26.04
+  OCI_ANNOTATION_DATABASE_TITLE: ${{ format('cmangos-deploy - {0}CMaNGOS {1} database image', inputs.workflow_mode == 'custom' && 'Custom ' || '', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
+  OCI_ANNOTATION_DATABASE_DESCRIPTION: ${{ format('Database for the CMaNGOS {0} server emulator.', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
+  OCI_ANNOTATION_DATABASE_BASE_NAME: mariadb:11.8
+
+jobs:
+  prepare:
+    name: Prepare build metadata
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      image: ${{ steps.prepare-build-metadata.outputs.image }}
+      package_name: ${{ steps.prepare-build-metadata.outputs.package_name }}
+      dockerfile: ${{ steps.prepare-build-metadata.outputs.dockerfile }}
+      build_amd64: ${{ steps.prepare-build-metadata.outputs.build_amd64 }}
+      build_arm64: ${{ steps.prepare-build-metadata.outputs.build_arm64 }}
+      is_multi_arch: ${{ steps.prepare-build-metadata.outputs.is_multi_arch }}
+      tags: ${{ steps.prepare-build-metadata.outputs.tags }}
+      build_args: ${{ steps.prepare-build-metadata.outputs.build_args }}
+      manifest_annotations: ${{ steps.prepare-build-metadata.outputs.manifest_annotations }}
+      index_annotations: ${{ steps.prepare-build-metadata.outputs.index_annotations }}
+      labels: ${{ steps.prepare-build-metadata.outputs.labels }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Prepare build metadata
+        id: prepare-build-metadata
+        env:
+          WORKFLOW_MODE: ${{ inputs.workflow_mode }}
+          IMAGE_KIND: ${{ inputs.image_kind }}
+          ARCHITECTURES: ${{ inputs.architectures }}
+          EXPANSION: ${{ inputs.expansion }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          CORE_REPOSITORY_URL: ${{ inputs.core_repository_url }}
+          DATABASE_REPOSITORY_URL: ${{ inputs.database_repository_url }}
+          PLAYERBOTS_REPOSITORY_URL: ${{ inputs.playerbots_repository_url }}
+          CORE_COMMIT_HASH: ${{ inputs.core_commit_hash }}
+          DATABASE_COMMIT_HASH: ${{ inputs.database_commit_hash }}
+          PLAYERBOTS_COMMIT_HASH: ${{ inputs.playerbots_commit_hash }}
+          COMBINED_REVISION_TAG: ${{ inputs.combined_revision_tag }}
+          CORE_REPOSITORY_OWNER: ${{ inputs.core_repository_owner }}
+          CORE_REPOSITORY_NAME: ${{ inputs.core_repository_name }}
+          CORE_REVISION: ${{ inputs.core_revision }}
+          DATABASE_REVISION: ${{ inputs.database_revision }}
+          PLAYERBOTS_REVISION: ${{ inputs.playerbots_revision }}
+          CUSTOM_TAG_FRAGMENT: ${{ inputs.custom_tag_fragment }}
+          MIGRATION_EDITS: ${{ inputs.migration_edits }}
+        run: ./.github/scripts/prepare-image-build.sh
+
+  build-amd64:
+    name: Build amd64 image
+    needs: prepare
+    if: ${{ needs.prepare.outputs.build_amd64 == 'true' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # The split `amd64`/`arm64` jobs would otherwise upload separate build
+      # records, which would add workflow artifacts that the current pipeline
+      # does not need.
+      DOCKER_BUILD_RECORD_UPLOAD: false
+    outputs:
+      digest: ${{ steps.build-image-by-digest.outputs.digest }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to container registry
+        if: ${{ inputs.push_images }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build amd64 image by digest
+        id: build-image-by-digest
+        if: ${{ inputs.push_images && needs.prepare.outputs.is_multi_arch == 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          file: ${{ needs.prepare.outputs.dockerfile }}
+          outputs: type=image,name=${{ needs.prepare.outputs.image }},push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true
+          provenance: false
+          build-args: ${{ needs.prepare.outputs.build_args }}
+          annotations: ${{ needs.prepare.outputs.manifest_annotations }}
+          labels: ${{ needs.prepare.outputs.labels }}
+
+      - name: Build amd64 image
+        if: ${{ !inputs.push_images || needs.prepare.outputs.is_multi_arch != 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          file: ${{ needs.prepare.outputs.dockerfile }}
+          push: ${{ inputs.push_images }}
+          provenance: false
+          build-args: ${{ needs.prepare.outputs.build_args }}
+          tags: ${{ needs.prepare.outputs.tags }}
+          annotations: ${{ needs.prepare.outputs.manifest_annotations }}
+          labels: ${{ needs.prepare.outputs.labels }}
+
+  build-arm64:
+    name: Build arm64 image
+    needs: prepare
+    if: ${{ needs.prepare.outputs.build_arm64 == 'true' }}
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # The split `amd64`/`arm64` jobs would otherwise upload separate build
+      # records, which would add workflow artifacts that the current pipeline
+      # does not need.
+      DOCKER_BUILD_RECORD_UPLOAD: false
+    outputs:
+      digest: ${{ steps.build-image-by-digest.outputs.digest }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to container registry
+        if: ${{ inputs.push_images }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build arm64 image by digest
+        id: build-image-by-digest
+        if: ${{ inputs.push_images && needs.prepare.outputs.is_multi_arch == 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/arm64
+          file: ${{ needs.prepare.outputs.dockerfile }}
+          outputs: type=image,name=${{ needs.prepare.outputs.image }},push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true
+          provenance: false
+          build-args: ${{ needs.prepare.outputs.build_args }}
+          annotations: ${{ needs.prepare.outputs.manifest_annotations }}
+          labels: ${{ needs.prepare.outputs.labels }}
+
+      - name: Build arm64 image
+        if: ${{ !inputs.push_images || needs.prepare.outputs.is_multi_arch != 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/arm64
+          file: ${{ needs.prepare.outputs.dockerfile }}
+          push: ${{ inputs.push_images }}
+          provenance: false
+          build-args: ${{ needs.prepare.outputs.build_args }}
+          tags: ${{ needs.prepare.outputs.tags }}
+          annotations: ${{ needs.prepare.outputs.manifest_annotations }}
+          labels: ${{ needs.prepare.outputs.labels }}
+
+  create-multi-platform-image-index:
+    name: Create multi-platform image index
+    needs: [prepare, build-amd64, build-arm64]
+    if: ${{ inputs.push_images && needs.prepare.outputs.is_multi_arch == 'true' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      # We build `amd64` and `arm64` manifests separately on native runners and
+      # only assemble the final multi-platform index once both digests exist.
+      - name: Create multi-platform image index
+        env:
+          IMAGE: ${{ needs.prepare.outputs.image }}
+          TAGS: ${{ needs.prepare.outputs.tags }}
+          DIGEST_AMD64: ${{ needs.build-amd64.outputs.digest }}
+          DIGEST_ARM64: ${{ needs.build-arm64.outputs.digest }}
+          INDEX_ANNOTATIONS: ${{ needs.prepare.outputs.index_annotations }}
+        run: ./.github/scripts/create-multiarch-manifest.sh
+
+  cleanup-untagged-package-versions:
+    name: Clean up untagged package versions
+    needs: [prepare, build-amd64, build-arm64, create-multi-platform-image-index]
+    if: ${{ always() && inputs.push_images && needs.prepare.outputs.is_multi_arch == 'true' && needs.create-multi-platform-image-index.result != 'success' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # A failed index creation would otherwise leave behind untagged manifest
+      # versions in the container registry for the digests that were already
+      # pushed.
+      - name: Delete untagged package versions from failed publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_OWNER: ${{ github.repository_owner }}
+          PACKAGE_NAME: ${{ needs.prepare.outputs.package_name }}
+          DIGEST_AMD64: ${{ needs.build-amd64.outputs.digest }}
+          DIGEST_ARM64: ${{ needs.build-arm64.outputs.digest }}
+        run: ./.github/scripts/clean-up-untagged-package-versions.sh
