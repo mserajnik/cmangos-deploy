@@ -5,8 +5,8 @@
       "subject": "Expand spell_threat insertions after previous commit"
     },
     "database": {
-      "commit": "6792b573541450d2720eaefa29db1f6c29ac2039",
-      "subject": "[Instance] Kara: Remove old path for c.guid 5320725"
+      "commit": "3dce0d9d618f1dfa7b4a6687dbe1b2ab96d4e3a1",
+      "subject": "[Custom] Add SPELL_ATTR_EX_AURA_UNIQUE for Hellscream\\'s Warsong 34410"
     },
     "playerbots": null
   },
