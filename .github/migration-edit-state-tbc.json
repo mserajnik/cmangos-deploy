@@ -5,8 +5,8 @@
       "subject": "Add serversides for blood guard porung"
     },
     "database": {
-      "commit": "3dce0d9d618f1dfa7b4a6687dbe1b2ab96d4e3a1",
-      "subject": "[Custom] Add SPELL_ATTR_EX_AURA_UNIQUE for Hellscream\\'s Warsong 34410"
+      "commit": "95bae451f061170fbab511fe02d792c4d9789c86",
+      "subject": "[ACID] Improve Cleave Timer for Blood Guard Porung 20923"
     },
     "playerbots": null
   },
