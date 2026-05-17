@@ -65,7 +65,7 @@ managing a CMaNGOS setup:
   - [Database security](#database-security)
 - [Maintainer](#maintainer)
 - [Contribute](#contribute)
-- [License](#license)
+- [Licenses](#licenses)
 
 ## Install
 
@@ -537,9 +537,13 @@ You are welcome to help out!
 
 [Open an issue][issues] or [make a pull request][pull-requests].
 
-## License
+## Licenses
 
-[AGPL-3.0-or-later](LICENSE) © Michael Serajnik
+- [`AGPL-3.0-or-later`][license-agpl-3.0-or-later] (Code)
+- [`CC-BY-SA-4.0`][license-cc-by-sa-4.0] (Documentation and graphic assets)
+- [`CC0-1.0`][license-cc0-1.0] (Configurations)
+
+This project follows the [REUSE specification][reuse-spec].
 
 [badge-actions-status]: https://github.com/mserajnik/cmangos-deploy/actions/workflows/build-docker-images.yaml/badge.svg
 [badge-actions-status-url]: https://github.com/mserajnik/cmangos-deploy/actions/workflows/build-docker-images.yaml
@@ -564,9 +568,13 @@ You are welcome to help out!
 [docker-compose]: https://docs.docker.com/compose/install/
 [image-cmangos-packages]: https://github.com/mserajnik?tab=packages&repo_name=cmangos-deploy
 [issues]: https://github.com/mserajnik/cmangos-deploy/issues
+[license-agpl-3.0-or-later]: LICENSES/AGPL-3.0-or-later.txt
+[license-cc-by-sa-4.0]: LICENSES/CC-BY-SA-4.0.txt
+[license-cc0-1.0]: LICENSES/CC0-1.0.txt
 [maintainer]: https://github.com/mserajnik
 [mangosd-gm-options]: https://github.com/mserajnik/cmangos-deploy/blob/master/config/classic/mangosd.conf.example#L1180-L1295
 [phpmyadmin]: https://www.phpmyadmin.net/
 [playerbots]: https://github.com/cmangos/playerbots
 [pull-requests]: https://github.com/mserajnik/cmangos-deploy/pulls
+[reuse-spec]: https://reuse.software/spec/
 [vmangos-deploy]: https://github.com/mserajnik/vmangos-deploy

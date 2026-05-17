@@ -1,0 +1,23 @@
+version = 1
+
+[[annotations]]
+path = ["README.md", ".github/logo.png"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Michael Serajnik <https://github.com/mserajnik>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = [
+  ".dockerignore",
+  ".dprint.jsonc",
+  ".editorconfig",
+  ".gitattributes",
+  ".gitignore",
+  ".shellcheckrc",
+  ".github/migration-edit-state-*.json",
+  "compose-*.yaml.example",
+  "config/**/*.conf.example",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Michael Serajnik <https://github.com/mserajnik>"
+SPDX-License-Identifier = "CC0-1.0"
