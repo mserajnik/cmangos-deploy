@@ -53,10 +53,10 @@ RUN \
     echo "Cloning and applying patches from $CMANGOS_PATCHES_REPOSITORY_URL"; \
     git clone "$CMANGOS_PATCHES_REPOSITORY_URL" /build/patches && \
     patch_count=0 && \
-    # Patches in `all/` (and per-repo subdirectories under `all/`) are applied
-    # to every expansion; patches in `<expansion>/` (and per-repo
-    # subdirectories there) only to that expansion. Top-level `*.patch` files
-    # apply to `/build/core`; `playerbots/*.patch` applies to
+    # Patches in `all` (and per-repo subdirectories under `all`) are applied to
+    # every expansion; patches in `<expansion>` (and per-repo subdirectories
+    # there) only to that expansion. Top-level `*.patch` files apply to
+    # `/build/core`; `playerbots/*.patch` applies to
     # `/build/core/src/modules/PlayerBots`, which is the in-tree copy `mangosd`
     # actually compiles against (the build does not use `/build/playerbots`
     # directly). `database/*.patch` files exist for the database image only and
@@ -175,7 +175,7 @@ RUN \
 
 # `etc` holds the upstream-installed `*.conf.dist` files. They are not needed
 # at runtime since `mangosd` is patched to read configuration files from
-# `/opt/cmangos/config/` (the bind-mount target supplied by the user).
+# `/opt/cmangos/config` (the bind-mount target supplied by the user).
 # `include`, `lib` and `share` may hold bundled fallback libraries CMaNGOS
 # builds when the system lacks them, which our Docker image does not need.
 COPY \

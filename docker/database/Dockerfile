@@ -44,11 +44,11 @@ RUN \
     echo "Cloning and applying patches from $CMANGOS_PATCHES_REPOSITORY_URL"; \
     git clone "$CMANGOS_PATCHES_REPOSITORY_URL" /build/patches && \
     patch_count=0 && \
-    # Patches in `all/` (and per-repo subdirectories under `all/`) are applied
-    # to every expansion; patches in `<expansion>/` (and per-repo
-    # subdirectories there) only to that expansion. Top-level `*.patch` files
-    # apply to `/build/core`; `database/*.patch` and `playerbots/*.patch` apply
-    # to the corresponding cloned source tree.
+    # Patches in `all` (and per-repo subdirectories under `all`) are applied to
+    # every expansion; patches in `<expansion>` (and per-repo subdirectories
+    # there) only to that expansion. Top-level `*.patch` files apply to
+    # `/build/core`; `database/*.patch` and `playerbots/*.patch` apply to the
+    # corresponding cloned source tree.
     # The expansion-specific and per-repo subdirectories are optional and may
     # not exist.
     for patch in \
