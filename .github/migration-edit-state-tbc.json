@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "a16a48b1e37db278f714d8cb009031f359663c2e",
-      "subject": "Expand spell_threat insertions after previous commit"
+      "commit": "a0a3d5cf73ef1a62758deed53805fc6f275663bd",
+      "subject": "Add serversides for blood guard porung"
     },
     "database": {
       "commit": "3dce0d9d618f1dfa7b4a6687dbe1b2ab96d4e3a1",
