@@ -558,12 +558,12 @@ This project follows the [REUSE specification][reuse-spec].
 [claude-code]: https://www.anthropic.com/product/claude-code
 [cmangos]: https://github.com/cmangos
 [codex]: https://openai.com/codex
-[compose-automatic-world-db-corrections]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L34-L46
-[compose-custom-sql]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L60-L77
+[compose-automatic-world-db-corrections]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L35-L47
+[compose-custom-sql]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L61-L78
 [compose-custom-sql-bind-mount]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L17
-[compose-database-backups]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L167-L203
-[compose-halt-on-edits]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L47-L59
-[compose-phpmyadmin]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L205-L225
+[compose-database-backups]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L168-L204
+[compose-halt-on-edits]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L48-L60
+[compose-phpmyadmin]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L206-L226
 [docker]: https://docs.docker.com/get-docker/
 [docker-compose]: https://docs.docker.com/compose/install/
 [image-cmangos-packages]: https://github.com/mserajnik?tab=packages&repo_name=cmangos-deploy

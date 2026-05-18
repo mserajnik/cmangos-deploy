@@ -71,4 +71,6 @@ if [ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]; then
   process_custom_sql "/sql/custom"
 fi
 
+configure_realm
+
 mark_database_ready

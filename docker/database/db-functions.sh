@@ -469,10 +469,17 @@ configure_realm() {
   cmangos_log "Configuring realm '$CMANGOS_REALMLIST_NAME'..."
 
   mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "realmd" -e \
-    "INSERT IGNORE INTO \`realmlist\` \
-       (\`id\`, \`name\`, \`address\`, \`port\`, \`icon\`, \`realmflags\`, \`timezone\`, \`allowedSecurityLevel\`) \
+    "INSERT INTO \`realmlist\` \
+       (\`id\`, \`name\`, \`address\`, \`port\`, \`icon\`, \`timezone\`, \`allowedSecurityLevel\`) \
      VALUES \
-       (1, '$realm_name', '$realm_address', '$CMANGOS_REALMLIST_PORT', '$CMANGOS_REALMLIST_ICON', 0, '$CMANGOS_REALMLIST_TIMEZONE', '$CMANGOS_REALMLIST_ALLOWED_SECURITY_LEVEL');"
+       (1, '$realm_name', '$realm_address', '$CMANGOS_REALMLIST_PORT', '$CMANGOS_REALMLIST_ICON', '$CMANGOS_REALMLIST_TIMEZONE', '$CMANGOS_REALMLIST_ALLOWED_SECURITY_LEVEL') \
+     ON DUPLICATE KEY UPDATE \
+       \`name\` = VALUES(\`name\`), \
+       \`address\` = VALUES(\`address\`), \
+       \`port\` = VALUES(\`port\`), \
+       \`icon\` = VALUES(\`icon\`), \
+       \`timezone\` = VALUES(\`timezone\`), \
+       \`allowedSecurityLevel\` = VALUES(\`allowedSecurityLevel\`);"
 }
 
 ensure_maintenance_db_exists() {
