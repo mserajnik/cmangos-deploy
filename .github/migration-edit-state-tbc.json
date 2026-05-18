@@ -5,8 +5,8 @@
       "subject": "Add serversides for blood guard porung"
     },
     "database": {
-      "commit": "3cdfd41cb1b525deda8a71aa8b78578eaf380d90",
-      "subject": "Move silithus areatrigger spawns to avoid conflicts"
+      "commit": "2dff089a217954f04e2a9326f64150ceac61932d",
+      "subject": "[ACID] Correct Targeting for Mogor 18069 - Chain Lightning & Flame Shock"
     },
     "playerbots": null
   },
