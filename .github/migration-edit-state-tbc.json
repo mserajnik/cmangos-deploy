@@ -5,8 +5,8 @@
       "subject": "Add serversides for blood guard porung"
     },
     "database": {
-      "commit": "95bae451f061170fbab511fe02d792c4d9789c86",
-      "subject": "[ACID] Improve Cleave Timer for Blood Guard Porung 20923"
+      "commit": "3cdfd41cb1b525deda8a71aa8b78578eaf380d90",
+      "subject": "Move silithus areatrigger spawns to avoid conflicts"
     },
     "playerbots": null
   },
