@@ -85,7 +85,7 @@ jobs:
           # When bumping `MARIADB_DOCKER_KNOWN_SHA`, also update the matching
           # SHA in `docker/database/Dockerfile` and the header comment in
           # `docker/database/docker-entrypoint.sh` so all three stay in sync.
-          MARIADB_DOCKER_KNOWN_SHA: 66972bc2e0c6fd33dcd5d98de0653c5696a1166e
+          MARIADB_DOCKER_KNOWN_SHA: 17937f4efcf313be671a6706b4c72ba6ef07b347
           CMANGOS_CLASSIC_KNOWN_SHA: 1aea167db3494eb4fe9667227b886d2f662627f6
           CMANGOS_TBC_KNOWN_SHA: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
           CMANGOS_WOTLK_KNOWN_SHA: fef8d93190482aaacf42f8831ae377bf7710925f
