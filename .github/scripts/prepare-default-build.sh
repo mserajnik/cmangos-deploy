@@ -3,10 +3,11 @@
 # SPDX-FileCopyrightText: 2026 Michael Serajnik <https://github.com/mserajnik>
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-# Resolves the current upstream CMaNGOS commits for each expansion (core,
-# database, and Playerbots) and decides whether the default workflow should
-# build images this run (skipping when images for those commits already exist,
-# unless the run is a scheduled Monday rebuild or a manual force rebuild).
+# Decides whether the default workflow should build images this run (skipping
+# when images for the resolved per-expansion commits already exist, unless the
+# run is a scheduled Monday rebuild or a manual force rebuild). Consumes the
+# commit hashes resolved by `resolve-sources.sh` and emits the per-expansion
+# build metadata downstream image-build jobs consume.
 
 set -euo pipefail
 
@@ -19,12 +20,16 @@ require_env GITHUB_EVENT_NAME
 require_env PACKAGE_OWNER
 require_env PACKAGE_NAME_PREFIX
 require_env CORE_REPOSITORY_OWNER
-require_env CORE_REPOSITORY_REVISION
 require_env DATABASE_REPOSITORY_OWNER
-require_env DATABASE_REPOSITORY_REVISION
 require_env PLAYERBOTS_REPOSITORY_OWNER
 require_env PLAYERBOTS_REPOSITORY_NAME
-require_env PLAYERBOTS_REPOSITORY_REVISION
+require_env CMANGOS_CLASSIC_COMMIT_HASH
+require_env CMANGOS_TBC_COMMIT_HASH
+require_env CMANGOS_WOTLK_COMMIT_HASH
+require_env CLASSIC_DB_COMMIT_HASH
+require_env TBC_DB_COMMIT_HASH
+require_env WOTLK_DB_COMMIT_HASH
+require_env PLAYERBOTS_COMMIT_HASH
 
 force_rebuild="${FORCE_REBUILD:-false}"
 schedule_force_build="false"
@@ -33,48 +38,11 @@ if [[ "$GITHUB_EVENT_NAME" == "schedule" && "$(date +%u)" -eq 1 ]]; then
   schedule_force_build="true"
 fi
 
-resolve_commit_hash() {
-  local repository_owner="$1"
-  local repository_name="$2"
-  local repository_ref="$3"
-
-  gh api "/repos/$repository_owner/$repository_name/commits/$repository_ref" \
-    --jq '.sha'
-}
-
-existing_tags_for_package() {
-  local package_owner="$1"
-  local package_name="$2"
-  local endpoint
-  local tags
-  local status
-
-  endpoint="$(package_versions_endpoint "$package_owner" "$package_name")"
-
-  set +e
-  tags="$(gh api --paginate "$endpoint?per_page=100" \
-    --jq '.[].metadata.container.tags[]?' 2>&1)"
-  status=$?
-  set -e
-
-  if [[ $status -ne 0 ]]; then
-    if grep -Fq "HTTP 404" <<<"$tags"; then
-      printf '%s' ""
-      return 0
-    fi
-
-    printf '%s\n' "$tags" >&2
-    fail "Failed to query package versions for '$package_owner/$package_name'."
-  fi
-
-  printf '%s' "$tags"
-}
-
 declare -a expansions=(classic tbc wotlk)
 
-# Only the per-expansion repository names actually vary; everything else
-# (owner, ref, package name prefix) is shared across expansions and surfaced
-# via env vars from the workflow.
+# Per-expansion repository names and resolved commit hashes; everything else
+# (owner, package name prefix) is shared across expansions and surfaced via
+# environment variables from the workflow.
 declare -A core_repository_name=(
   [classic]=mangos-classic
   [tbc]=mangos-tbc
@@ -85,6 +53,21 @@ declare -A database_repository_name=(
   [tbc]=tbc-db
   [wotlk]=wotlk-db
 )
+# shellcheck disable=SC2153
+declare -A core_commit_hash_by_expansion=(
+  [classic]="$(trim "$CMANGOS_CLASSIC_COMMIT_HASH")"
+  [tbc]="$(trim "$CMANGOS_TBC_COMMIT_HASH")"
+  [wotlk]="$(trim "$CMANGOS_WOTLK_COMMIT_HASH")"
+)
+# shellcheck disable=SC2153
+declare -A database_commit_hash_by_expansion=(
+  [classic]="$(trim "$CLASSIC_DB_COMMIT_HASH")"
+  [tbc]="$(trim "$TBC_DB_COMMIT_HASH")"
+  [wotlk]="$(trim "$WOTLK_DB_COMMIT_HASH")"
+)
+
+# shellcheck disable=SC2153
+playerbots_commit_hash="$(trim "$PLAYERBOTS_COMMIT_HASH")"
 
 build_metadata="{}"
 declare -a expansions_to_build=()
@@ -98,17 +81,13 @@ for expansion in "${expansions[@]}"; do
   database_url="https://github.com/$DATABASE_REPOSITORY_OWNER/$database_name.git"
   playerbots_url="https://github.com/$PLAYERBOTS_REPOSITORY_OWNER/$PLAYERBOTS_REPOSITORY_NAME.git"
 
-  core_hash="$(resolve_commit_hash \
-    "$CORE_REPOSITORY_OWNER" "$core_name" "$CORE_REPOSITORY_REVISION")"
-  database_hash="$(resolve_commit_hash \
-    "$DATABASE_REPOSITORY_OWNER" "$database_name" "$DATABASE_REPOSITORY_REVISION")"
-  playerbots_hash="$(resolve_commit_hash \
-    "$PLAYERBOTS_REPOSITORY_OWNER" "$PLAYERBOTS_REPOSITORY_NAME" "$PLAYERBOTS_REPOSITORY_REVISION")"
+  core_commit_hash="${core_commit_hash_by_expansion[$expansion]}"
+  database_commit_hash="${database_commit_hash_by_expansion[$expansion]}"
 
   combined_revision_tag="$expansion"
-  combined_revision_tag+="-core.$(short_revision "$core_hash")"
-  combined_revision_tag+="-db.$(short_revision "$database_hash")"
-  combined_revision_tag+="-playerbots.$(short_revision "$playerbots_hash")"
+  combined_revision_tag+="-core.$(short_revision "$core_commit_hash")"
+  combined_revision_tag+="-db.$(short_revision "$database_commit_hash")"
+  combined_revision_tag+="-playerbots.$(short_revision "$playerbots_commit_hash")"
 
   images_already_exist="false"
 
@@ -131,11 +110,11 @@ for expansion in "${expansions[@]}"; do
   build_metadata="$(jq \
     --arg expansion "$expansion" \
     --arg core_repository_url "$core_url" \
-    --arg core_commit_hash "$core_hash" \
+    --arg core_commit_hash "$core_commit_hash" \
     --arg database_repository_url "$database_url" \
-    --arg database_commit_hash "$database_hash" \
+    --arg database_commit_hash "$database_commit_hash" \
     --arg playerbots_repository_url "$playerbots_url" \
-    --arg playerbots_commit_hash "$playerbots_hash" \
+    --arg playerbots_commit_hash "$playerbots_commit_hash" \
     --arg combined_revision_tag "$combined_revision_tag" \
     --arg images_already_exist "$images_already_exist" \
     '. + {

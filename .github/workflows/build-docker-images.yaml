@@ -56,26 +56,65 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # Compares every upstream reference cmangos-deploy depends on (patched
-      # MariaDB entrypoint, bundled config templates, root `CMakeLists.txt`
-      # files where new build deps would surface, the upstream DB install
-      # scripts our `db-functions.sh` re-implements, ...) against its current
-      # upstream revision. The pinned SHAs anchor what each was last reviewed
-      # against; bump the matching SHA below after refreshing the local copy.
+      # Resolve the current upstream commit of every source the default
+      # workflow depends on to a full commit hash once, up front. Downstream
+      # steps (drift check, build decision, image builds) all reference these
+      # same commit hashes so the run is consistent even if a branch tip moves
+      # mid-run.
+      - name: Resolve sources
+        id: resolve-sources
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CORE_REPOSITORY_OWNER: cmangos
+          CORE_REPOSITORY_REVISION: master
+          DATABASE_REPOSITORY_OWNER: cmangos
+          DATABASE_REPOSITORY_REVISION: master
+          PLAYERBOTS_REPOSITORY_OWNER: cmangos
+          PLAYERBOTS_REPOSITORY_NAME: playerbots
+          PLAYERBOTS_REPOSITORY_REVISION: master
+          MARIADB_DOCKER_REPOSITORY_OWNER: MariaDB
+          MARIADB_DOCKER_REPOSITORY_NAME: mariadb-docker
+          MARIADB_DOCKER_REVISION: master
+        run: ./.github/scripts/resolve-sources.sh
+
+      # Compares every upstream reference cmangos-deploy depends on (bundled
+      # config templates, root `CMakeLists.txt` files where new build
+      # dependencies would surface, the upstream DB install scripts our
+      # `docker/database/db-functions.sh` re-implements, the patched MariaDB
+      # entrypoint, ...) against the resolved upstream `HEAD`. The pinned
+      # commit hashes anchor what each was last reviewed against; bump the
+      # matching commit hash below after refreshing the local copy.
       - name: Check for upstream drift
         id: upstream-drift-check
         env:
-          # When bumping `MARIADB_DOCKER_KNOWN_SHA`, also update the matching
-          # SHA in `docker/database/Dockerfile` and the header comment in
-          # `docker/database/docker-entrypoint.sh` so all three stay in sync.
-          MARIADB_DOCKER_KNOWN_SHA: 17937f4efcf313be671a6706b4c72ba6ef07b347
-          CMANGOS_CLASSIC_KNOWN_SHA: 1aea167db3494eb4fe9667227b886d2f662627f6
-          CMANGOS_TBC_KNOWN_SHA: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
-          CMANGOS_WOTLK_KNOWN_SHA: fef8d93190482aaacf42f8831ae377bf7710925f
-          CLASSIC_DB_KNOWN_SHA: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
-          TBC_DB_KNOWN_SHA: 7d5224900b2cc484de5e06fa101965703ea27a0a
-          WOTLK_DB_KNOWN_SHA: cb487b287aa1980aff157f8557999aeada505018
-          PLAYERBOTS_KNOWN_SHA: c33dfac220eb624761b6737324071ad7fae5b39f
+          CMANGOS_CLASSIC_REPOSITORY: ${{ steps.resolve-sources.outputs.cmangos_classic_repository }}
+          CMANGOS_CLASSIC_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.cmangos_classic_commit_hash }}
+          CMANGOS_TBC_REPOSITORY: ${{ steps.resolve-sources.outputs.cmangos_tbc_repository }}
+          CMANGOS_TBC_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.cmangos_tbc_commit_hash }}
+          CMANGOS_WOTLK_REPOSITORY: ${{ steps.resolve-sources.outputs.cmangos_wotlk_repository }}
+          CMANGOS_WOTLK_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.cmangos_wotlk_commit_hash }}
+          CLASSIC_DB_REPOSITORY: ${{ steps.resolve-sources.outputs.classic_db_repository }}
+          CLASSIC_DB_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.classic_db_commit_hash }}
+          TBC_DB_REPOSITORY: ${{ steps.resolve-sources.outputs.tbc_db_repository }}
+          TBC_DB_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.tbc_db_commit_hash }}
+          WOTLK_DB_REPOSITORY: ${{ steps.resolve-sources.outputs.wotlk_db_repository }}
+          WOTLK_DB_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.wotlk_db_commit_hash }}
+          PLAYERBOTS_REPOSITORY: ${{ steps.resolve-sources.outputs.playerbots_repository }}
+          PLAYERBOTS_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.playerbots_commit_hash }}
+          MARIADB_DOCKER_REPOSITORY: ${{ steps.resolve-sources.outputs.mariadb_docker_repository }}
+          MARIADB_DOCKER_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.mariadb_docker_commit_hash }}
+          CMANGOS_CLASSIC_KNOWN_COMMIT_HASH: 1aea167db3494eb4fe9667227b886d2f662627f6
+          CMANGOS_TBC_KNOWN_COMMIT_HASH: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
+          CMANGOS_WOTLK_KNOWN_COMMIT_HASH: fef8d93190482aaacf42f8831ae377bf7710925f
+          CLASSIC_DB_KNOWN_COMMIT_HASH: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
+          TBC_DB_KNOWN_COMMIT_HASH: 7d5224900b2cc484de5e06fa101965703ea27a0a
+          WOTLK_DB_KNOWN_COMMIT_HASH: cb487b287aa1980aff157f8557999aeada505018
+          PLAYERBOTS_KNOWN_COMMIT_HASH: c33dfac220eb624761b6737324071ad7fae5b39f
+          # When bumping `MARIADB_DOCKER_KNOWN_COMMIT_HASH`, also update the
+          # matching commit hash in `docker/database/Dockerfile` and the header
+          # comment in `docker/database/docker-entrypoint.sh` so all three stay
+          # in sync.
+          MARIADB_DOCKER_KNOWN_COMMIT_HASH: 17937f4efcf313be671a6706b4c72ba6ef07b347
         run: ./.github/scripts/check-upstream-drift.sh
 
       # We check if the workflow was triggered by a schedule and if today is
@@ -92,12 +131,16 @@ jobs:
           PACKAGE_OWNER: ${{ github.repository_owner }}
           PACKAGE_NAME_PREFIX: cmangos-database
           CORE_REPOSITORY_OWNER: cmangos
-          CORE_REPOSITORY_REVISION: master
           DATABASE_REPOSITORY_OWNER: cmangos
-          DATABASE_REPOSITORY_REVISION: master
           PLAYERBOTS_REPOSITORY_OWNER: cmangos
           PLAYERBOTS_REPOSITORY_NAME: playerbots
-          PLAYERBOTS_REPOSITORY_REVISION: master
+          CMANGOS_CLASSIC_COMMIT_HASH: ${{ steps.resolve-sources.outputs.cmangos_classic_commit_hash }}
+          CMANGOS_TBC_COMMIT_HASH: ${{ steps.resolve-sources.outputs.cmangos_tbc_commit_hash }}
+          CMANGOS_WOTLK_COMMIT_HASH: ${{ steps.resolve-sources.outputs.cmangos_wotlk_commit_hash }}
+          CLASSIC_DB_COMMIT_HASH: ${{ steps.resolve-sources.outputs.classic_db_commit_hash }}
+          TBC_DB_COMMIT_HASH: ${{ steps.resolve-sources.outputs.tbc_db_commit_hash }}
+          WOTLK_DB_COMMIT_HASH: ${{ steps.resolve-sources.outputs.wotlk_db_commit_hash }}
+          PLAYERBOTS_COMMIT_HASH: ${{ steps.resolve-sources.outputs.playerbots_commit_hash }}
           FORCE_REBUILD: ${{ inputs.force_rebuild }}
         run: ./.github/scripts/prepare-default-build.sh
 

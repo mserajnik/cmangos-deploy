@@ -6,7 +6,7 @@
 # Resolves the previous database image's per-source commit hash for every
 # expansion by reading the most recent combined revision tag from GHCR.
 #
-# Cutoff anchors below are the SHAs in each upstream source repo that
+# Cutoff anchors below are the commit hashes in each upstream source repo that
 # cmangos-deploy was reviewed against initially. They are passed to
 # `read-last-built-commit.sh` and used by it only when no prior image exists in
 # the GitHub Container Registry to read a tag from; subsequent runs parse the
@@ -42,6 +42,7 @@ read_last_built() {
   local tmp_output
 
   tmp_output="$(mktemp)"
+  # shellcheck disable=SC2153
   GH_TOKEN="$GH_TOKEN" \
     PACKAGE_OWNER="$PACKAGE_OWNER" \
     PACKAGE_NAME="$package_name" \

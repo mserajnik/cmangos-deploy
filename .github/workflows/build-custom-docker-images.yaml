@@ -77,22 +77,35 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      # Same drift check as the default build workflow; see that workflow for
-      # the rationale and the SHA-bump procedure.
+      # Resolve only the MariaDB entrypoint commit hash up front. We
+      # intentionally skip resolving the CMaNGOS-side commit hashes here (and
+      # the matching drift checks below): the custom build uses user-provided
+      # repositories which may not be the canonical CMaNGOS repositories or
+      # even hosted on GitHub, so comparing our pinned CMaNGOS references
+      # against their upstream `HEAD`s would not validate anything about this
+      # run.
+      - name: Resolve sources
+        id: resolve-sources
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MARIADB_DOCKER_REPOSITORY_OWNER: MariaDB
+          MARIADB_DOCKER_REPOSITORY_NAME: mariadb-docker
+          MARIADB_DOCKER_REVISION: master
+        run: ./.github/scripts/resolve-sources.sh
+
+      # The patched MariaDB entrypoint is bundled into every database image we
+      # build (regardless of which CMaNGOS fork the user picked), so we still
+      # want to know when our pinned copy has drifted from upstream `HEAD`.
       - name: Check for upstream drift
         id: upstream-drift-check
         env:
-          # When bumping `MARIADB_DOCKER_KNOWN_SHA`, also update the matching
-          # SHA in `docker/database/Dockerfile` and the header comment in
-          # `docker/database/docker-entrypoint.sh` so all three stay in sync.
-          MARIADB_DOCKER_KNOWN_SHA: 17937f4efcf313be671a6706b4c72ba6ef07b347
-          CMANGOS_CLASSIC_KNOWN_SHA: 1aea167db3494eb4fe9667227b886d2f662627f6
-          CMANGOS_TBC_KNOWN_SHA: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
-          CMANGOS_WOTLK_KNOWN_SHA: fef8d93190482aaacf42f8831ae377bf7710925f
-          CLASSIC_DB_KNOWN_SHA: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
-          TBC_DB_KNOWN_SHA: 7d5224900b2cc484de5e06fa101965703ea27a0a
-          WOTLK_DB_KNOWN_SHA: cb487b287aa1980aff157f8557999aeada505018
-          PLAYERBOTS_KNOWN_SHA: c33dfac220eb624761b6737324071ad7fae5b39f
+          MARIADB_DOCKER_REPOSITORY: ${{ steps.resolve-sources.outputs.mariadb_docker_repository }}
+          MARIADB_DOCKER_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.mariadb_docker_commit_hash }}
+          # When bumping `MARIADB_DOCKER_KNOWN_COMMIT_HASH`, also update the
+          # matching commit hash in `docker/database/Dockerfile` and the header
+          # comment in `docker/database/docker-entrypoint.sh` so all three stay
+          # in sync.
+          MARIADB_DOCKER_KNOWN_COMMIT_HASH: 17937f4efcf313be671a6706b4c72ba6ef07b347
         run: ./.github/scripts/check-upstream-drift.sh
 
       # Falls back to the canonical CMaNGOS repository for the chosen expansion

@@ -123,33 +123,33 @@ walk_one() {
 
   echo "[$db.$source] Scanning '$repo' between $base and $head..."
 
-  local shas_oldest_first
-  shas_oldest_first="$(gh api --paginate \
+  local commit_hashes_oldest_first
+  commit_hashes_oldest_first="$(gh api --paginate \
     "repos/$repo/compare/$base...$head" \
     --jq '.commits[].sha')"
 
-  if [[ -z "$shas_oldest_first" ]]; then
+  if [[ -z "$commit_hashes_oldest_first" ]]; then
     echo "[$db.$source] No commits between $base and $head."
     return 0
   fi
 
-  local shas_newest_first
-  shas_newest_first="$(tac <<<"$shas_oldest_first")"
+  local commit_hashes_newest_first
+  commit_hashes_newest_first="$(tac <<<"$commit_hashes_oldest_first")"
   local total
-  total="$(wc -l <<<"$shas_newest_first" | tr -d ' ')"
+  total="$(wc -l <<<"$commit_hashes_newest_first" | tr -d ' ')"
   echo "[$db.$source] Walking $total commits newest-first."
 
   local scanned=0
-  local sha
-  # Each iteration makes one `gh api ...commits/<sha>` call. The 5000 calls per
-  # hour `GITHUB_TOKEN` rate limit bounds the worst case (~14 months of history
-  # from the cutoff anchor on a fresh fork's first build).
-  while IFS= read -r sha; do
-    [[ -z "$sha" ]] && continue
+  local commit_hash
+  # Each iteration makes one `gh api ...commits/<commit hash>` call. The 5000
+  # calls per hour `GITHUB_TOKEN` rate limit bounds the worst case (~14 months
+  # of history from the cutoff anchor on a fresh fork's first build).
+  while IFS= read -r commit_hash; do
+    [[ -z "$commit_hash" ]] && continue
     scanned=$((scanned + 1))
 
     local commit_data
-    commit_data="$(gh api "repos/$repo/commits/$sha")"
+    commit_data="$(gh api "repos/$repo/commits/$commit_hash")"
 
     # We skip merge commits because their diff against the first parent would
     # attribute the merged branch's file changes to the merge commit itself,
@@ -173,12 +173,12 @@ walk_one() {
       ] | length' <<<"$files_json")"
 
     if [[ "$has_edit" -gt 0 ]]; then
-      found_commits[idx]="$sha"
+      found_commits[idx]="$commit_hash"
       found_subjects[idx]="$subject"
-      echo "[$db.$source] $sha ($subject)"
+      echo "[$db.$source] $commit_hash ($subject)"
       break
     fi
-  done <<<"$shas_newest_first"
+  done <<<"$commit_hashes_newest_first"
 
   echo "[$db.$source] Scanned $scanned commit(s)."
 }
@@ -213,9 +213,9 @@ for i in "${!walk_dbs[@]}"; do
     new_state="$(jq \
       --arg db "${walk_dbs[$i]}" \
       --arg source "${walk_sources[$i]}" \
-      --arg sha "${found_commits[$i]}" \
+      --arg commit_hash "${found_commits[$i]}" \
       --arg subject "${found_subjects[$i]}" \
-      '.[$db][$source] = {commit: $sha, subject: $subject}' \
+      '.[$db][$source] = {commit: $commit_hash, subject: $subject}' \
       <<<"$new_state")"
   fi
 done

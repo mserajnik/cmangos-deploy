@@ -489,32 +489,39 @@ ensure_maintenance_db_exists() {
   mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "maintenance" -e \
     "CREATE TABLE IF NOT EXISTS \`migration_corrections\` ( \
       \`db_name\` VARCHAR(64) NOT NULL, \
-      \`commit_sha\` CHAR(40) NOT NULL, \
+      \`commit_hash\` CHAR(40) NOT NULL, \
       \`acknowledged_at\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, \
-      PRIMARY KEY (\`db_name\`, \`commit_sha\`) \
+      PRIMARY KEY (\`db_name\`, \`commit_hash\`) \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+
+  # One-time rename of the legacy `commit_sha` column to `commit_hash` for
+  # installs that were created before the renaming. TODO: removable once we can
+  # assume all existing installs have run with the new column name.
+  mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "maintenance" -e \
+    "ALTER TABLE \`migration_corrections\` \
+     CHANGE COLUMN IF EXISTS \`commit_sha\` \`commit_hash\` CHAR(40) NOT NULL;"
 }
 
 correction_acknowledged() {
   local db_name="$1"
-  local sha="$2"
+  local commit_hash="$2"
   local count
 
   count="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "maintenance" -N -s -e \
     "SELECT COUNT(*) FROM \`migration_corrections\` \
     WHERE \`db_name\` = '$(sql_escape "$db_name")' \
-    AND \`commit_sha\` = '$(sql_escape "$sha")';")"
+    AND \`commit_hash\` = '$(sql_escape "$commit_hash")';")"
 
   [ "$count" -gt 0 ]
 }
 
 acknowledge_correction() {
   local db_name="$1"
-  local sha="$2"
+  local commit_hash="$2"
 
   mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "maintenance" -e \
-    "INSERT IGNORE INTO \`migration_corrections\` (\`db_name\`, \`commit_sha\`) \
-    VALUES ('$(sql_escape "$db_name")', '$(sql_escape "$sha")');"
+    "INSERT IGNORE INTO \`migration_corrections\` (\`db_name\`, \`commit_hash\`) \
+    VALUES ('$(sql_escape "$db_name")', '$(sql_escape "$commit_hash")');"
 }
 
 # The `CMANGOS_MIGRATION_EDITS` build argument is baked into
@@ -524,18 +531,19 @@ acknowledge_correction() {
 #
 # Leaks the per-DB `MIGRATION_EDIT_*` globals to the parent script by design;
 # `update-db.sh` and `create-db.sh` consume them after sourcing.
-# The arrays are parallel: index `i` of `*_SOURCES` and `*_SHAS` describes one
-# `(source, sha)` pair that needs acknowledgement for that DB.
+# The arrays are parallel: index `i` of `*_SOURCES` and `*_COMMIT_HASHES`
+# describes one `(source, commit hash)` pair that needs acknowledgement for
+# that DB.
 # shellcheck disable=SC2034
 parse_migration_edits() {
   MIGRATION_EDIT_WORLD_SOURCES=()
-  MIGRATION_EDIT_WORLD_SHAS=()
+  MIGRATION_EDIT_WORLD_COMMIT_HASHES=()
   MIGRATION_EDIT_CHARACTERS_SOURCES=()
-  MIGRATION_EDIT_CHARACTERS_SHAS=()
+  MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES=()
   MIGRATION_EDIT_REALMD_SOURCES=()
-  MIGRATION_EDIT_REALMD_SHAS=()
+  MIGRATION_EDIT_REALMD_COMMIT_HASHES=()
   MIGRATION_EDIT_LOGS_SOURCES=()
-  MIGRATION_EDIT_LOGS_SHAS=()
+  MIGRATION_EDIT_LOGS_COMMIT_HASHES=()
 
   local file="/sql/migration-edits"
   if [ ! -f "$file" ]; then
@@ -551,7 +559,7 @@ parse_migration_edits() {
     return 0
   fi
 
-  local slot db entries item src sha
+  local slot db entries item src commit_hash
   local saved_ifs="$IFS"
   IFS='|'
   for slot in $raw; do
@@ -566,26 +574,26 @@ parse_migration_edits() {
     IFS=','
     for item in $entries; do
       src="${item%%@*}"
-      sha="${item#*@}"
+      commit_hash="${item#*@}"
       [ -z "$src" ] && continue
-      [ -z "$sha" ] && continue
+      [ -z "$commit_hash" ] && continue
 
       case "$db" in
       world)
         MIGRATION_EDIT_WORLD_SOURCES+=("$src")
-        MIGRATION_EDIT_WORLD_SHAS+=("$sha")
+        MIGRATION_EDIT_WORLD_COMMIT_HASHES+=("$commit_hash")
         ;;
       characters)
         MIGRATION_EDIT_CHARACTERS_SOURCES+=("$src")
-        MIGRATION_EDIT_CHARACTERS_SHAS+=("$sha")
+        MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES+=("$commit_hash")
         ;;
       realmd)
         MIGRATION_EDIT_REALMD_SOURCES+=("$src")
-        MIGRATION_EDIT_REALMD_SHAS+=("$sha")
+        MIGRATION_EDIT_REALMD_COMMIT_HASHES+=("$commit_hash")
         ;;
       logs)
         MIGRATION_EDIT_LOGS_SOURCES+=("$src")
-        MIGRATION_EDIT_LOGS_SHAS+=("$sha")
+        MIGRATION_EDIT_LOGS_COMMIT_HASHES+=("$commit_hash")
         ;;
       esac
     done
@@ -599,16 +607,16 @@ parse_migration_edits() {
 pre_acknowledge_all_baked() {
   local i
   for i in "${!MIGRATION_EDIT_WORLD_SOURCES[@]}"; do
-    acknowledge_correction "mangos" "${MIGRATION_EDIT_WORLD_SHAS[i]}"
+    acknowledge_correction "mangos" "${MIGRATION_EDIT_WORLD_COMMIT_HASHES[i]}"
   done
   for i in "${!MIGRATION_EDIT_CHARACTERS_SOURCES[@]}"; do
-    acknowledge_correction "characters" "${MIGRATION_EDIT_CHARACTERS_SHAS[i]}"
+    acknowledge_correction "characters" "${MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES[i]}"
   done
   for i in "${!MIGRATION_EDIT_REALMD_SOURCES[@]}"; do
-    acknowledge_correction "realmd" "${MIGRATION_EDIT_REALMD_SHAS[i]}"
+    acknowledge_correction "realmd" "${MIGRATION_EDIT_REALMD_COMMIT_HASHES[i]}"
   done
   for i in "${!MIGRATION_EDIT_LOGS_SOURCES[@]}"; do
-    acknowledge_correction "logs" "${MIGRATION_EDIT_LOGS_SHAS[i]}"
+    acknowledge_correction "logs" "${MIGRATION_EDIT_LOGS_COMMIT_HASHES[i]}"
   done
 }
 
@@ -641,7 +649,7 @@ world_db_full_install() {
 
 PENDING_DB_NAMES=()
 PENDING_DB_SOURCES=()
-PENDING_DB_SHAS=()
+PENDING_DB_COMMIT_HASHES=()
 
 process_world_correction() {
   if [ "${#MIGRATION_EDIT_WORLD_SOURCES[@]}" -eq 0 ]; then
@@ -650,20 +658,20 @@ process_world_correction() {
 
   local i
   local src
-  local sha
+  local commit_hash
   local unack_sources=()
-  local unack_shas=()
+  local unack_commit_hashes=()
 
   for i in "${!MIGRATION_EDIT_WORLD_SOURCES[@]}"; do
     src="${MIGRATION_EDIT_WORLD_SOURCES[i]}"
-    sha="${MIGRATION_EDIT_WORLD_SHAS[i]}"
-    if ! correction_acknowledged "mangos" "$sha"; then
+    commit_hash="${MIGRATION_EDIT_WORLD_COMMIT_HASHES[i]}"
+    if ! correction_acknowledged "mangos" "$commit_hash"; then
       unack_sources+=("$src")
-      unack_shas+=("$sha")
+      unack_commit_hashes+=("$commit_hash")
     fi
   done
 
-  if [ "${#unack_shas[@]}" -eq 0 ]; then
+  if [ "${#unack_commit_hashes[@]}" -eq 0 ]; then
     return 0
   fi
 
@@ -673,8 +681,8 @@ process_world_correction() {
   if [ "$enable_auto" = "1" ]; then
     cmangos_log "Re-creating world database to apply migration edits..."
     world_db_full_install
-    for i in "${!unack_shas[@]}"; do
-      acknowledge_correction "mangos" "${unack_shas[i]}"
+    for i in "${!unack_commit_hashes[@]}"; do
+      acknowledge_correction "mangos" "${unack_commit_hashes[i]}"
     done
     return 0
   fi
@@ -683,7 +691,7 @@ process_world_correction() {
     for i in "${!unack_sources[@]}"; do
       PENDING_DB_NAMES+=("mangos")
       PENDING_DB_SOURCES+=("${unack_sources[i]}")
-      PENDING_DB_SHAS+=("${unack_shas[i]}")
+      PENDING_DB_COMMIT_HASHES+=("${unack_commit_hashes[i]}")
     done
     return 0
   fi
@@ -691,27 +699,27 @@ process_world_correction() {
   # We deliberately do not record an acknowledgement here so the warning
   # repeats on every start until the user takes action.
   for i in "${!unack_sources[@]}"; do
-    cmangos_log "WARNING: Migration edit detected for world database (${unack_sources[i]}@${unack_shas[i]:0:7}) but both 'CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS' and 'CMANGOS_HALT_ON_MIGRATION_EDITS' are disabled; continuing without applying or acknowledging." >&2
+    cmangos_log "WARNING: Migration edit detected for world database (${unack_sources[i]}@${unack_commit_hashes[i]:0:7}) but both 'CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS' and 'CMANGOS_HALT_ON_MIGRATION_EDITS' are disabled; continuing without applying or acknowledging." >&2
   done
 }
 
 process_userstate_correction() {
   local db_name="$1"
   local sources_ref
-  local shas_ref
+  local commit_hashes_ref
 
   case "$db_name" in
   characters)
     sources_ref="MIGRATION_EDIT_CHARACTERS_SOURCES[@]"
-    shas_ref="MIGRATION_EDIT_CHARACTERS_SHAS[@]"
+    commit_hashes_ref="MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES[@]"
     ;;
   realmd)
     sources_ref="MIGRATION_EDIT_REALMD_SOURCES[@]"
-    shas_ref="MIGRATION_EDIT_REALMD_SHAS[@]"
+    commit_hashes_ref="MIGRATION_EDIT_REALMD_COMMIT_HASHES[@]"
     ;;
   logs)
     sources_ref="MIGRATION_EDIT_LOGS_SOURCES[@]"
-    shas_ref="MIGRATION_EDIT_LOGS_SHAS[@]"
+    commit_hashes_ref="MIGRATION_EDIT_LOGS_COMMIT_HASHES[@]"
     ;;
   *)
     cmangos_fail "Unsupported user-state database '$db_name'."
@@ -719,7 +727,7 @@ process_userstate_correction() {
   esac
 
   local sources=("${!sources_ref}")
-  local shas=("${!shas_ref}")
+  local commit_hashes=("${!commit_hashes_ref}")
 
   if [ "${#sources[@]}" -eq 0 ]; then
     return 0
@@ -729,44 +737,44 @@ process_userstate_correction() {
 
   local i
   local src
-  local sha
+  local commit_hash
   for i in "${!sources[@]}"; do
     src="${sources[i]}"
-    sha="${shas[i]}"
-    if correction_acknowledged "$db_name" "$sha"; then
+    commit_hash="${commit_hashes[i]}"
+    if correction_acknowledged "$db_name" "$commit_hash"; then
       continue
     fi
 
     if [ "$halt_on_edits" = "1" ]; then
       PENDING_DB_NAMES+=("$db_name")
       PENDING_DB_SOURCES+=("$src")
-      PENDING_DB_SHAS+=("$sha")
+      PENDING_DB_COMMIT_HASHES+=("$commit_hash")
       continue
     fi
 
     # We deliberately do not record an acknowledgement here so the warning
     # repeats on every start until the user takes action.
-    cmangos_log "WARNING: Migration edit detected for '$db_name' database ($src@${sha:0:7}) but 'CMANGOS_HALT_ON_MIGRATION_EDITS' is disabled; continuing without acknowledging." >&2
+    cmangos_log "WARNING: Migration edit detected for '$db_name' database ($src@${commit_hash:0:7}) but 'CMANGOS_HALT_ON_MIGRATION_EDITS' is disabled; continuing without acknowledging." >&2
   done
 }
 
-# Maps a `(source, sha)` pair to the upstream commit URL the user should read
-# while reconciling the change.
+# Maps a `(source, commit hash)` pair to the upstream commit URL the user
+# should read while reconciling the change.
 correction_source_url() {
   local src="$1"
-  local sha="$2"
+  local commit_hash="$2"
 
   case "$src" in
   core)
     printf 'https://github.com/cmangos/mangos-%s/commit/%s' \
-      "$CMANGOS_EXPANSION" "$sha"
+      "$CMANGOS_EXPANSION" "$commit_hash"
     ;;
   database)
     printf 'https://github.com/cmangos/%s-db/commit/%s' \
-      "$CMANGOS_EXPANSION" "$sha"
+      "$CMANGOS_EXPANSION" "$commit_hash"
     ;;
   playerbots)
-    printf 'https://github.com/cmangos/playerbots/commit/%s' "$sha"
+    printf 'https://github.com/cmangos/playerbots/commit/%s' "$commit_hash"
     ;;
   *) ;;
   esac
@@ -785,13 +793,13 @@ EOF
   local i=0
   local name
   local src
-  local sha
+  local commit_hash
   local url
   while [ "$i" -lt "${#PENDING_DB_NAMES[@]}" ]; do
     name="${PENDING_DB_NAMES[$i]}"
     src="${PENDING_DB_SOURCES[$i]}"
-    sha="${PENDING_DB_SHAS[$i]}"
-    url="$(correction_source_url "$src" "$sha")"
+    commit_hash="${PENDING_DB_COMMIT_HASHES[$i]}"
+    url="$(correction_source_url "$src" "$commit_hash")"
     printf '  - %s (%s)\n' "$name" "$src" >&2
     if [ -n "$url" ]; then
       printf '    %s\n' "$url" >&2
@@ -805,7 +813,7 @@ For each affected database:
 
   1. Open the GitHub link above to see what changed.
   2. Apply the equivalent SQL to the running database yourself:
-       docker compose exec database mariadb -u root -p <db>
+       docker compose exec database mariadb -u root -p <database>
      (mariadb will prompt for the password; it matches your
      `MARIADB_ROOT_PASSWORD` setting in `compose.yaml`.)
   3. When you have applied the changes, confirm by running on the host:

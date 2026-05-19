@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Flattens a per-expansion migration edit state file to the
-# `CMANGOS_MIGRATION_EDITS` build argument format:
-# `<db>:<src1>@<sha1>,<src2>@<sha2>|...` (null source entries are omitted; a DB
-# whose sources are all null renders as `<db>:`).
+# `CMANGOS_MIGRATION_EDITS` build argument: pipe-separated database entries,
+# each `<database>:<source>@<commit hash>,...` (null source entries are
+# omitted; a database whose sources are all null renders as `<database>:`).
 
 set -euo pipefail
 
@@ -24,30 +24,15 @@ if [[ ! -f "$state_file" ]]; then
   fail "State file '$state_file' does not exist."
 fi
 
-# We enumerate slots in a stable order so the rendered string is deterministic
-# and matches what runtime parsers expect.
-db_names=(world characters realmd logs)
-parts=()
-
-for db in "${db_names[@]}"; do
-  entries="$(jq -r --arg db "$db" '
-    .[$db] // {}
-    | to_entries
-    | map(select(.value != null))
-    | map("\(.key)@\(.value.commit)")
-    | join(",")
-  ' "$state_file")"
-  parts+=("$db:$entries")
-done
-
-# Join with `|` without trailing separator.
-output=""
-for part in "${parts[@]}"; do
-  if [ -z "$output" ]; then
-    output="$part"
-  else
-    output+="|$part"
-  fi
-done
-
-printf '%s\n' "$output"
+jq -r '
+  ["world", "characters", "realmd", "logs"] as $order
+  | [$order[] as $db |
+      "\($db):" +
+      (.[$db] // {}
+        | to_entries
+        | map(select(.value != null))
+        | map("\(.key)@\(.value.commit)")
+        | join(","))
+    ]
+  | join("|")
+' "$state_file"

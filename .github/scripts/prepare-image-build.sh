@@ -145,6 +145,7 @@ default)
   playerbots_revision="$(trim "$PLAYERBOTS_COMMIT_HASH")"
   primary_tag="$(trim "$COMBINED_REVISION_TAG")"
 
+  # shellcheck disable=SC2153
   image_name="$REPOSITORY_OWNER/$image_name_base-$expansion"
   image="$REGISTRY/$image_name"
   ref_name="$image:$primary_tag"

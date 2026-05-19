@@ -5,7 +5,7 @@
 
 # Resolves the previous database image's commit hash for one source slot of a
 # given package. The combined revision tag on the most recent image is parsed
-# for the source's short SHA, then resolved to a full SHA via
+# for the source's short commit hash, then resolved to a full commit hash via
 # `gh api commits/<short>`. Falls back to a hard-coded cutoff anchor when no
 # prior image exists (e.g., on a fork's first build).
 
@@ -40,27 +40,12 @@ playerbots) tag_fragment="playerbots" ;;
 esac
 
 # shellcheck disable=SC2153
-package_endpoint="$(package_versions_endpoint "$PACKAGE_OWNER" "$PACKAGE_NAME")"
-
-set +e
-all_tags="$(gh api --paginate "$package_endpoint?per_page=100" \
-  --jq '.[].metadata.container.tags[]?' 2>&1)"
-gh_status=$?
-set -e
-
-if [[ $gh_status -ne 0 ]]; then
-  if grep -Fq "HTTP 404" <<<"$all_tags"; then
-    all_tags=""
-  else
-    printf '%s\n' "$all_tags" >&2
-    fail "Failed to query package versions for '$PACKAGE_OWNER/$PACKAGE_NAME'."
-  fi
-fi
+all_tags="$(existing_tags_for_package "$PACKAGE_OWNER" "$PACKAGE_NAME")"
 
 # Match the first combined-revision tag we see (the package list is sorted
-# newest-first) and extract the short SHA for this source. The regex tolerates
-# the three fragments appearing in any order.
-short_sha=""
+# newest-first) and extract the short commit hash for this source. The regex
+# tolerates the three fragments appearing in any order.
+short_commit_hash=""
 combined_tag_regex='^[a-z]+-(core|db|playerbots)\.[0-9a-f]{12}-(core|db|playerbots)\.[0-9a-f]{12}-(core|db|playerbots)\.[0-9a-f]{12}$'
 fragment_regex="(^|-)${tag_fragment}\.([0-9a-f]{12})(-|$)"
 
@@ -68,22 +53,18 @@ while IFS= read -r tag; do
   [[ -z "$tag" ]] && continue
 
   if [[ "$tag" =~ $combined_tag_regex ]] && [[ "$tag" =~ $fragment_regex ]]; then
-    short_sha="${BASH_REMATCH[2]}"
+    short_commit_hash="${BASH_REMATCH[2]}"
     break
   fi
 done <<<"$all_tags"
 
-if [[ -z "$short_sha" ]]; then
+if [[ -z "$short_commit_hash" ]]; then
   echo "[$SOURCE] No prior package version with a parseable combined revision tag found; falling back to migration edit cutoff." >&2
   write_output commit_hash "$CUTOFF_COMMIT_HASH"
   exit 0
 fi
 
-repo="$SOURCE_REPOSITORY_OWNER/$SOURCE_REPOSITORY_NAME"
-full_sha="$(gh api "repos/$repo/commits/$short_sha" --jq '.sha')"
+full_commit_hash="$(resolve_commit_hash \
+  "$SOURCE_REPOSITORY_OWNER" "$SOURCE_REPOSITORY_NAME" "$short_commit_hash")"
 
-if [[ -z "$full_sha" ]] || ! [[ "$full_sha" =~ ^[0-9a-f]{40}$ ]]; then
-  fail "Failed to resolve short SHA '$short_sha' to a full SHA in '$repo'."
-fi
-
-write_output commit_hash "$full_sha"
+write_output commit_hash "$full_commit_hash"
