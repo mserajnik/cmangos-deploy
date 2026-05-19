@@ -1,6 +1,9 @@
 {
   "world": {
-    "core": null,
+    "core": {
+      "commit": "9852f04575154c3d5d4fd8cf9c2c2a9f536a277e",
+      "subject": "[14101] Quest: Fix mistake with naming"
+    },
     "database": null,
     "playerbots": null
   },

@@ -5,8 +5,8 @@
       "subject": "Add serversides for blood guard porung"
     },
     "database": {
-      "commit": "2dff089a217954f04e2a9326f64150ceac61932d",
-      "subject": "[ACID] Correct Targeting for Mogor 18069 - Chain Lightning & Flame Shock"
+      "commit": "efb53df4e6a6f3810ee9f778ed6d94bd6ac34f36",
+      "subject": "Update [0684] Readd TEMP RandomMovement for 10617 (Galak Messenger)"
     },
     "playerbots": null
   },
