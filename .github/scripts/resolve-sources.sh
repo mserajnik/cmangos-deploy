@@ -22,19 +22,19 @@ require_env GH_TOKEN
 
 resolved_any=false
 
-if [[ -n "${CORE_REPOSITORY_OWNER:-}${CORE_REPOSITORY_REVISION:-}" ]]; then
+if [[ -n "${CORE_REPOSITORY_OWNER:-}${CORE_REVISION:-}" ]]; then
   require_env CORE_REPOSITORY_OWNER
-  require_env CORE_REPOSITORY_REVISION
+  require_env CORE_REVISION
 
   cmangos_classic_repository="$CORE_REPOSITORY_OWNER/mangos-classic"
   cmangos_classic_commit_hash="$(resolve_commit_hash \
-    "$CORE_REPOSITORY_OWNER" mangos-classic "$CORE_REPOSITORY_REVISION")"
+    "$CORE_REPOSITORY_OWNER" mangos-classic "$CORE_REVISION")"
   cmangos_tbc_repository="$CORE_REPOSITORY_OWNER/mangos-tbc"
   cmangos_tbc_commit_hash="$(resolve_commit_hash \
-    "$CORE_REPOSITORY_OWNER" mangos-tbc "$CORE_REPOSITORY_REVISION")"
+    "$CORE_REPOSITORY_OWNER" mangos-tbc "$CORE_REVISION")"
   cmangos_wotlk_repository="$CORE_REPOSITORY_OWNER/mangos-wotlk"
   cmangos_wotlk_commit_hash="$(resolve_commit_hash \
-    "$CORE_REPOSITORY_OWNER" mangos-wotlk "$CORE_REPOSITORY_REVISION")"
+    "$CORE_REPOSITORY_OWNER" mangos-wotlk "$CORE_REVISION")"
 
   if [[ "$resolved_any" != "true" ]]; then printf 'Resolved sources:\n'; fi
   printf '  %s@%s\n' "$cmangos_classic_repository" "$cmangos_classic_commit_hash"
@@ -50,19 +50,19 @@ if [[ -n "${CORE_REPOSITORY_OWNER:-}${CORE_REPOSITORY_REVISION:-}" ]]; then
   resolved_any=true
 fi
 
-if [[ -n "${DATABASE_REPOSITORY_OWNER:-}${DATABASE_REPOSITORY_REVISION:-}" ]]; then
+if [[ -n "${DATABASE_REPOSITORY_OWNER:-}${DATABASE_REVISION:-}" ]]; then
   require_env DATABASE_REPOSITORY_OWNER
-  require_env DATABASE_REPOSITORY_REVISION
+  require_env DATABASE_REVISION
 
   classic_db_repository="$DATABASE_REPOSITORY_OWNER/classic-db"
   classic_db_commit_hash="$(resolve_commit_hash \
-    "$DATABASE_REPOSITORY_OWNER" classic-db "$DATABASE_REPOSITORY_REVISION")"
+    "$DATABASE_REPOSITORY_OWNER" classic-db "$DATABASE_REVISION")"
   tbc_db_repository="$DATABASE_REPOSITORY_OWNER/tbc-db"
   tbc_db_commit_hash="$(resolve_commit_hash \
-    "$DATABASE_REPOSITORY_OWNER" tbc-db "$DATABASE_REPOSITORY_REVISION")"
+    "$DATABASE_REPOSITORY_OWNER" tbc-db "$DATABASE_REVISION")"
   wotlk_db_repository="$DATABASE_REPOSITORY_OWNER/wotlk-db"
   wotlk_db_commit_hash="$(resolve_commit_hash \
-    "$DATABASE_REPOSITORY_OWNER" wotlk-db "$DATABASE_REPOSITORY_REVISION")"
+    "$DATABASE_REPOSITORY_OWNER" wotlk-db "$DATABASE_REVISION")"
 
   if [[ "$resolved_any" != "true" ]]; then printf 'Resolved sources:\n'; fi
   printf '  %s@%s\n' "$classic_db_repository" "$classic_db_commit_hash"
@@ -78,15 +78,15 @@ if [[ -n "${DATABASE_REPOSITORY_OWNER:-}${DATABASE_REPOSITORY_REVISION:-}" ]]; t
   resolved_any=true
 fi
 
-if [[ -n "${PLAYERBOTS_REPOSITORY_OWNER:-}${PLAYERBOTS_REPOSITORY_NAME:-}${PLAYERBOTS_REPOSITORY_REVISION:-}" ]]; then
+if [[ -n "${PLAYERBOTS_REPOSITORY_OWNER:-}${PLAYERBOTS_REPOSITORY_NAME:-}${PLAYERBOTS_REVISION:-}" ]]; then
   require_env PLAYERBOTS_REPOSITORY_OWNER
   require_env PLAYERBOTS_REPOSITORY_NAME
-  require_env PLAYERBOTS_REPOSITORY_REVISION
+  require_env PLAYERBOTS_REVISION
 
   playerbots_repository="$PLAYERBOTS_REPOSITORY_OWNER/$PLAYERBOTS_REPOSITORY_NAME"
   playerbots_commit_hash="$(resolve_commit_hash \
     "$PLAYERBOTS_REPOSITORY_OWNER" "$PLAYERBOTS_REPOSITORY_NAME" \
-    "$PLAYERBOTS_REPOSITORY_REVISION")"
+    "$PLAYERBOTS_REVISION")"
   if [[ "$resolved_any" != "true" ]]; then printf 'Resolved sources:\n'; fi
   printf '  %s@%s\n' "$playerbots_repository" "$playerbots_commit_hash"
 

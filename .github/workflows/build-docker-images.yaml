@@ -50,7 +50,7 @@ jobs:
       build_metadata: ${{ steps.prepare-default-build.outputs.build_metadata }}
       expansions_to_build: ${{ steps.prepare-default-build.outputs.expansions_to_build }}
       any_images_to_build: ${{ steps.prepare-default-build.outputs.any_images_to_build }}
-      migration_edits: ${{ steps.migration-edits.outputs.migration_edits }}
+      migration_edits: ${{ steps.prepare-migration-edits.outputs.migration_edits }}
 
     steps:
       - name: Checkout repository
@@ -66,12 +66,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           CORE_REPOSITORY_OWNER: cmangos
-          CORE_REPOSITORY_REVISION: master
+          CORE_REVISION: master
           DATABASE_REPOSITORY_OWNER: cmangos
-          DATABASE_REPOSITORY_REVISION: master
+          DATABASE_REVISION: master
           PLAYERBOTS_REPOSITORY_OWNER: cmangos
           PLAYERBOTS_REPOSITORY_NAME: playerbots
-          PLAYERBOTS_REPOSITORY_REVISION: master
+          PLAYERBOTS_REVISION: master
           MARIADB_DOCKER_REPOSITORY_OWNER: MariaDB
           MARIADB_DOCKER_REPOSITORY_NAME: mariadb-docker
           MARIADB_DOCKER_REVISION: master
@@ -83,7 +83,7 @@ jobs:
       # `docker/database/db-functions.sh` re-implements, the patched MariaDB
       # entrypoint, ...) against the resolved upstream `HEAD`. The pinned
       # commit hashes anchor what each was last reviewed against; bump the
-      # matching commit hash below after refreshing the local copy.
+      # matching commit hash below after refreshing the local files.
       - name: Check for upstream drift
         id: upstream-drift-check
         env:
@@ -159,7 +159,7 @@ jobs:
         run: ./.github/scripts/resolve-last-built-commits.sh
 
       - name: Compute migration edit state
-        id: migration-edits
+        id: prepare-migration-edits
         if: ${{ steps.prepare-default-build.outputs.any_images_to_build == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}

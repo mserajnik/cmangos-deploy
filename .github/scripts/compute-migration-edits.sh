@@ -44,13 +44,14 @@ fi
 # associative arrays, so we keep these as positional lists.
 #
 # Each index `i` describes one walk:
-#   walk_dbs[i]: the DB slot (world/characters/realmd/logs)
-#   walk_sources[i]: the source slot under that DB (core/database/playerbots)
-#   walk_owners[i]: the source repository's GitHub owner
-#   walk_names[i]: the source repository's GitHub repo name
-#   walk_bases[i]: the previous build's commit hash in that source repo
-#   walk_heads[i]: the current build's commit hash in that source repo
-#   walk_patterns[i]: a `|`-separated list of file-path regexes to match
+#
+# - `walk_dbs[i]`: the DB slot (world/characters/realmd/logs)
+# - `walk_sources[i]`: the source slot under that DB (core/database/playerbots)
+# - `walk_owners[i]`: the source repository's GitHub owner
+# - `walk_names[i]`: the source repository's GitHub repo name
+# - `walk_bases[i]`: the previous build's commit hash in that source repo
+# - `walk_heads[i]`: the current build's commit hash in that source repo
+# - `walk_patterns[i]`: a `|`-separated list of file-path regexes to match
 walk_dbs=(world world world characters characters realmd logs)
 walk_sources=(core database playerbots core playerbots core core)
 walk_owners=(

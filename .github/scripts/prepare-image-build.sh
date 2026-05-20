@@ -13,6 +13,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source-path=SCRIPTDIR
 source "$script_dir/helpers.sh"
 
+require_env REGISTRY
 require_env WORKFLOW_MODE
 require_env IMAGE_KIND
 require_env ARCHITECTURES
@@ -130,8 +131,6 @@ case "$expansion" in
 classic | tbc | wotlk) ;;
 *) fail "Unsupported expansion '$expansion'." ;;
 esac
-
-require_env REGISTRY
 
 case "$WORKFLOW_MODE" in
 default)

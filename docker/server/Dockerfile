@@ -168,7 +168,8 @@ RUN \
   chmod 4755 /usr/local/bin/fixuid && \
   mkdir -p /etc/fixuid && \
   printf 'user: %s\ngroup: %s\n' "$CMANGOS_USER_NAME" "$CMANGOS_GROUP_NAME" > /etc/fixuid/config.yml && \
-  apt remove -y curl && \
+  apt remove -y \
+    curl && \
   apt autoremove -y && \
   apt clean -y && \
   rm -rf /var/lib/apt/lists/*
