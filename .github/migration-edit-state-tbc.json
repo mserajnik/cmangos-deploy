@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "a0a3d5cf73ef1a62758deed53805fc6f275663bd",
-      "subject": "Add serversides for blood guard porung"
+      "commit": "0b6a5e1df0e5ad841e95779bf46d9ce1dd99c9c9",
+      "subject": "UB: Implement areatrigger at_earthbinder_rayge"
     },
     "database": {
-      "commit": "efb53df4e6a6f3810ee9f778ed6d94bd6ac34f36",
-      "subject": "Update [0684] Readd TEMP RandomMovement for 10617 (Galak Messenger)"
+      "commit": "8b8b555020ec72fb50b38d26ec8752babb60212e",
+      "subject": "And a couple more pool errors bite the dust"
     },
     "playerbots": null
   },
