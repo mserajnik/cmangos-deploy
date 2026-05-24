@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "0b6a5e1df0e5ad841e95779bf46d9ce1dd99c9c9",
-      "subject": "UB: Implement areatrigger at_earthbinder_rayge"
+      "commit": "39df9d7cc783a297bf8ebecec6ed9e87af43edc1",
+      "subject": "Hunter: Reimplement script for tame beast and add level check"
     },
     "database": {
       "commit": "8b8b555020ec72fb50b38d26ec8752babb60212e",
