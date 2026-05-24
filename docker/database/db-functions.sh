@@ -84,12 +84,12 @@ import_sql_file() {
   local file="$2"
 
   case "$file" in
-  *.gz)
-    gzip -dc "$file" | mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name"
-    ;;
-  *)
-    mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name" <"$file"
-    ;;
+    *.gz)
+      gzip -dc "$file" | mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name"
+      ;;
+    *)
+      mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name" <"$file"
+      ;;
   esac
 }
 
@@ -214,21 +214,21 @@ required_version_table_name() {
   local db_kind="$1"
 
   case "$db_kind" in
-  mangos)
-    printf 'db_version'
-    ;;
-  characters)
-    printf 'character_db_version'
-    ;;
-  realmd)
-    printf 'realmd_db_version'
-    ;;
-  logs)
-    printf 'logs_db_version'
-    ;;
-  *)
-    cmangos_fail "Unsupported database kind '$db_kind'."
-    ;;
+    mangos)
+      printf 'db_version'
+      ;;
+    characters)
+      printf 'character_db_version'
+      ;;
+    realmd)
+      printf 'realmd_db_version'
+      ;;
+    logs)
+      printf 'logs_db_version'
+      ;;
+    *)
+      cmangos_fail "Unsupported database kind '$db_kind'."
+      ;;
   esac
 }
 
@@ -579,22 +579,22 @@ parse_migration_edits() {
       [ -z "$commit_hash" ] && continue
 
       case "$db" in
-      world)
-        MIGRATION_EDIT_WORLD_SOURCES+=("$src")
-        MIGRATION_EDIT_WORLD_COMMIT_HASHES+=("$commit_hash")
-        ;;
-      characters)
-        MIGRATION_EDIT_CHARACTERS_SOURCES+=("$src")
-        MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES+=("$commit_hash")
-        ;;
-      realmd)
-        MIGRATION_EDIT_REALMD_SOURCES+=("$src")
-        MIGRATION_EDIT_REALMD_COMMIT_HASHES+=("$commit_hash")
-        ;;
-      logs)
-        MIGRATION_EDIT_LOGS_SOURCES+=("$src")
-        MIGRATION_EDIT_LOGS_COMMIT_HASHES+=("$commit_hash")
-        ;;
+        world)
+          MIGRATION_EDIT_WORLD_SOURCES+=("$src")
+          MIGRATION_EDIT_WORLD_COMMIT_HASHES+=("$commit_hash")
+          ;;
+        characters)
+          MIGRATION_EDIT_CHARACTERS_SOURCES+=("$src")
+          MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES+=("$commit_hash")
+          ;;
+        realmd)
+          MIGRATION_EDIT_REALMD_SOURCES+=("$src")
+          MIGRATION_EDIT_REALMD_COMMIT_HASHES+=("$commit_hash")
+          ;;
+        logs)
+          MIGRATION_EDIT_LOGS_SOURCES+=("$src")
+          MIGRATION_EDIT_LOGS_COMMIT_HASHES+=("$commit_hash")
+          ;;
       esac
     done
     IFS='|'
@@ -709,21 +709,21 @@ process_userstate_correction() {
   local commit_hashes_ref
 
   case "$db_name" in
-  characters)
-    sources_ref="MIGRATION_EDIT_CHARACTERS_SOURCES[@]"
-    commit_hashes_ref="MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES[@]"
-    ;;
-  realmd)
-    sources_ref="MIGRATION_EDIT_REALMD_SOURCES[@]"
-    commit_hashes_ref="MIGRATION_EDIT_REALMD_COMMIT_HASHES[@]"
-    ;;
-  logs)
-    sources_ref="MIGRATION_EDIT_LOGS_SOURCES[@]"
-    commit_hashes_ref="MIGRATION_EDIT_LOGS_COMMIT_HASHES[@]"
-    ;;
-  *)
-    cmangos_fail "Unsupported user-state database '$db_name'."
-    ;;
+    characters)
+      sources_ref="MIGRATION_EDIT_CHARACTERS_SOURCES[@]"
+      commit_hashes_ref="MIGRATION_EDIT_CHARACTERS_COMMIT_HASHES[@]"
+      ;;
+    realmd)
+      sources_ref="MIGRATION_EDIT_REALMD_SOURCES[@]"
+      commit_hashes_ref="MIGRATION_EDIT_REALMD_COMMIT_HASHES[@]"
+      ;;
+    logs)
+      sources_ref="MIGRATION_EDIT_LOGS_SOURCES[@]"
+      commit_hashes_ref="MIGRATION_EDIT_LOGS_COMMIT_HASHES[@]"
+      ;;
+    *)
+      cmangos_fail "Unsupported user-state database '$db_name'."
+      ;;
   esac
 
   local sources=("${!sources_ref}")
@@ -765,18 +765,18 @@ correction_source_url() {
   local commit_hash="$2"
 
   case "$src" in
-  core)
-    printf 'https://github.com/cmangos/mangos-%s/commit/%s' \
-      "$CMANGOS_EXPANSION" "$commit_hash"
-    ;;
-  database)
-    printf 'https://github.com/cmangos/%s-db/commit/%s' \
-      "$CMANGOS_EXPANSION" "$commit_hash"
-    ;;
-  playerbots)
-    printf 'https://github.com/cmangos/playerbots/commit/%s' "$commit_hash"
-    ;;
-  *) ;;
+    core)
+      printf 'https://github.com/cmangos/mangos-%s/commit/%s' \
+        "$CMANGOS_EXPANSION" "$commit_hash"
+      ;;
+    database)
+      printf 'https://github.com/cmangos/%s-db/commit/%s' \
+        "$CMANGOS_EXPANSION" "$commit_hash"
+      ;;
+    playerbots)
+      printf 'https://github.com/cmangos/playerbots/commit/%s' "$commit_hash"
+      ;;
+    *) ;;
   esac
 }
 

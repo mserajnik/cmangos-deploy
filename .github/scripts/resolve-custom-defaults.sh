@@ -21,21 +21,21 @@ core_repository_url_input="$(trim "${CORE_REPOSITORY_URL_INPUT:-}")"
 database_repository_url_input="$(trim "${DATABASE_REPOSITORY_URL_INPUT:-}")"
 
 case "$expansion" in
-classic)
-  default_core_repository_url="https://github.com/cmangos/mangos-classic.git"
-  default_database_repository_url="https://github.com/cmangos/classic-db.git"
-  ;;
-tbc)
-  default_core_repository_url="https://github.com/cmangos/mangos-tbc.git"
-  default_database_repository_url="https://github.com/cmangos/tbc-db.git"
-  ;;
-wotlk)
-  default_core_repository_url="https://github.com/cmangos/mangos-wotlk.git"
-  default_database_repository_url="https://github.com/cmangos/wotlk-db.git"
-  ;;
-*)
-  fail "Unsupported expansion '$expansion'."
-  ;;
+  classic)
+    default_core_repository_url="https://github.com/cmangos/mangos-classic.git"
+    default_database_repository_url="https://github.com/cmangos/classic-db.git"
+    ;;
+  tbc)
+    default_core_repository_url="https://github.com/cmangos/mangos-tbc.git"
+    default_database_repository_url="https://github.com/cmangos/tbc-db.git"
+    ;;
+  wotlk)
+    default_core_repository_url="https://github.com/cmangos/mangos-wotlk.git"
+    default_database_repository_url="https://github.com/cmangos/wotlk-db.git"
+    ;;
+  *)
+    fail "Unsupported expansion '$expansion'."
+    ;;
 esac
 
 if [[ -n "$core_repository_url_input" ]]; then

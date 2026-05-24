@@ -25,18 +25,18 @@ migration_edits='{}'
 
 for expansion in classic tbc wotlk; do
   case "$expansion" in
-  classic)
-    core_name="mangos-classic"
-    db_name="classic-db"
-    ;;
-  tbc)
-    core_name="mangos-tbc"
-    db_name="tbc-db"
-    ;;
-  wotlk)
-    core_name="mangos-wotlk"
-    db_name="wotlk-db"
-    ;;
+    classic)
+      core_name="mangos-classic"
+      db_name="classic-db"
+      ;;
+    tbc)
+      core_name="mangos-tbc"
+      db_name="tbc-db"
+      ;;
+    wotlk)
+      core_name="mangos-wotlk"
+      db_name="wotlk-db"
+      ;;
   esac
 
   state_file=".github/migration-edit-state-$expansion.json"

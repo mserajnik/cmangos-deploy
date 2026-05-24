@@ -24,19 +24,19 @@ require_env SOURCE_REPOSITORY_NAME
 require_env CUTOFF_COMMIT_HASH
 
 case "$SOURCE" in
-core | database | playerbots) ;;
-*)
-  fail "Unsupported source '$SOURCE'. Expected one of: core, database, playerbots."
-  ;;
+  core | database | playerbots) ;;
+  *)
+    fail "Unsupported source '$SOURCE'. Expected one of: core, database, playerbots."
+    ;;
 esac
 
 # Maps the migration edit source name to the fragment used in the combined
 # revision tag built by `prepare-default-build.sh`. The tag shape is
 # `<expansion>-core.<short>-db.<short>-playerbots.<short>`.
 case "$SOURCE" in
-core) tag_fragment="core" ;;
-database) tag_fragment="db" ;;
-playerbots) tag_fragment="playerbots" ;;
+  core) tag_fragment="core" ;;
+  database) tag_fragment="db" ;;
+  playerbots) tag_fragment="playerbots" ;;
 esac
 
 # shellcheck disable=SC2153

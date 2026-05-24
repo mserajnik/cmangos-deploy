@@ -83,125 +83,125 @@ normalize_revision() {
 }
 
 case "$architectures" in
-both | "Both amd64 and arm64")
-  build_amd64="true"
-  build_arm64="true"
-  is_multi_arch="true"
-  ;;
-amd64 | "amd64 only")
-  build_amd64="true"
-  ;;
-arm64 | "arm64 only")
-  build_arm64="true"
-  ;;
-*)
-  fail "Unsupported architectures value '$architectures'."
-  ;;
+  both | "Both amd64 and arm64")
+    build_amd64="true"
+    build_arm64="true"
+    is_multi_arch="true"
+    ;;
+  amd64 | "amd64 only")
+    build_amd64="true"
+    ;;
+  arm64 | "arm64 only")
+    build_arm64="true"
+    ;;
+  *)
+    fail "Unsupported architectures value '$architectures'."
+    ;;
 esac
 
 case "$IMAGE_KIND" in
-server)
-  require_env OCI_ANNOTATION_SERVER_TITLE
-  require_env OCI_ANNOTATION_SERVER_DESCRIPTION
-  require_env OCI_ANNOTATION_SERVER_BASE_NAME
+  server)
+    require_env OCI_ANNOTATION_SERVER_TITLE
+    require_env OCI_ANNOTATION_SERVER_DESCRIPTION
+    require_env OCI_ANNOTATION_SERVER_BASE_NAME
 
-  image_name_base="cmangos-server"
-  dockerfile="./docker/server/Dockerfile"
-  title="$(trim "$OCI_ANNOTATION_SERVER_TITLE")"
-  description="$(trim "$OCI_ANNOTATION_SERVER_DESCRIPTION")"
-  base_name="$(trim "$OCI_ANNOTATION_SERVER_BASE_NAME")"
-  ;;
-database)
-  require_env OCI_ANNOTATION_DATABASE_TITLE
-  require_env OCI_ANNOTATION_DATABASE_DESCRIPTION
-  require_env OCI_ANNOTATION_DATABASE_BASE_NAME
+    image_name_base="cmangos-server"
+    dockerfile="./docker/server/Dockerfile"
+    title="$(trim "$OCI_ANNOTATION_SERVER_TITLE")"
+    description="$(trim "$OCI_ANNOTATION_SERVER_DESCRIPTION")"
+    base_name="$(trim "$OCI_ANNOTATION_SERVER_BASE_NAME")"
+    ;;
+  database)
+    require_env OCI_ANNOTATION_DATABASE_TITLE
+    require_env OCI_ANNOTATION_DATABASE_DESCRIPTION
+    require_env OCI_ANNOTATION_DATABASE_BASE_NAME
 
-  image_name_base="cmangos-database"
-  dockerfile="./docker/database/Dockerfile"
-  title="$(trim "$OCI_ANNOTATION_DATABASE_TITLE")"
-  description="$(trim "$OCI_ANNOTATION_DATABASE_DESCRIPTION")"
-  base_name="$(trim "$OCI_ANNOTATION_DATABASE_BASE_NAME")"
-  ;;
-*)
-  fail "Unsupported image kind '$IMAGE_KIND'."
-  ;;
+    image_name_base="cmangos-database"
+    dockerfile="./docker/database/Dockerfile"
+    title="$(trim "$OCI_ANNOTATION_DATABASE_TITLE")"
+    description="$(trim "$OCI_ANNOTATION_DATABASE_DESCRIPTION")"
+    base_name="$(trim "$OCI_ANNOTATION_DATABASE_BASE_NAME")"
+    ;;
+  *)
+    fail "Unsupported image kind '$IMAGE_KIND'."
+    ;;
 esac
 
 case "$expansion" in
-classic | tbc | wotlk) ;;
-*) fail "Unsupported expansion '$expansion'." ;;
+  classic | tbc | wotlk) ;;
+  *) fail "Unsupported expansion '$expansion'." ;;
 esac
 
 case "$WORKFLOW_MODE" in
-default)
-  require_env CORE_COMMIT_HASH
-  require_env DATABASE_COMMIT_HASH
-  require_env PLAYERBOTS_COMMIT_HASH
-  require_env COMBINED_REVISION_TAG
+  default)
+    require_env CORE_COMMIT_HASH
+    require_env DATABASE_COMMIT_HASH
+    require_env PLAYERBOTS_COMMIT_HASH
+    require_env COMBINED_REVISION_TAG
 
-  core_revision="$(trim "$CORE_COMMIT_HASH")"
-  database_revision="$(trim "$DATABASE_COMMIT_HASH")"
-  playerbots_revision="$(trim "$PLAYERBOTS_COMMIT_HASH")"
-  primary_tag="$(trim "$COMBINED_REVISION_TAG")"
+    core_revision="$(trim "$CORE_COMMIT_HASH")"
+    database_revision="$(trim "$DATABASE_COMMIT_HASH")"
+    playerbots_revision="$(trim "$PLAYERBOTS_COMMIT_HASH")"
+    primary_tag="$(trim "$COMBINED_REVISION_TAG")"
 
-  # shellcheck disable=SC2153
-  image_name="$REPOSITORY_OWNER/$image_name_base-$expansion"
-  image="$REGISTRY/$image_name"
-  ref_name="$image:$primary_tag"
+    # shellcheck disable=SC2153
+    image_name="$REPOSITORY_OWNER/$image_name_base-$expansion"
+    image="$REGISTRY/$image_name"
+    ref_name="$image:$primary_tag"
 
-  tags+=("$image:latest")
-  tags+=("$ref_name")
+    tags+=("$image:latest")
+    tags+=("$ref_name")
 
-  mode_metadata_entries+=(
-    "version=$primary_tag"
-    "revision=$core_revision"
-  )
-  ;;
-custom)
-  require_env CORE_REVISION
-  require_env DATABASE_REVISION
-  require_env PLAYERBOTS_REVISION
-  require_env CORE_REPOSITORY_OWNER
-  require_env CORE_REPOSITORY_NAME
+    mode_metadata_entries+=(
+      "version=$primary_tag"
+      "revision=$core_revision"
+    )
+    ;;
+  custom)
+    require_env CORE_REVISION
+    require_env DATABASE_REVISION
+    require_env PLAYERBOTS_REVISION
+    require_env CORE_REPOSITORY_OWNER
+    require_env CORE_REPOSITORY_NAME
 
-  # shellcheck disable=SC2153
-  core_revision="$(trim "$CORE_REVISION")"
-  # shellcheck disable=SC2153
-  database_revision="$(trim "$DATABASE_REVISION")"
-  # shellcheck disable=SC2153
-  playerbots_revision="$(trim "$PLAYERBOTS_REVISION")"
-  # shellcheck disable=SC2153
-  core_repository_owner="$(trim "$CORE_REPOSITORY_OWNER")"
-  # shellcheck disable=SC2153
-  core_repository_name="$(trim "$CORE_REPOSITORY_NAME")"
-  custom_tag_fragment="$(trim "${CUSTOM_TAG_FRAGMENT:-}")"
+    # shellcheck disable=SC2153
+    core_revision="$(trim "$CORE_REVISION")"
+    # shellcheck disable=SC2153
+    database_revision="$(trim "$DATABASE_REVISION")"
+    # shellcheck disable=SC2153
+    playerbots_revision="$(trim "$PLAYERBOTS_REVISION")"
+    # shellcheck disable=SC2153
+    core_repository_owner="$(trim "$CORE_REPOSITORY_OWNER")"
+    # shellcheck disable=SC2153
+    core_repository_name="$(trim "$CORE_REPOSITORY_NAME")"
+    custom_tag_fragment="$(trim "${CUSTOM_TAG_FRAGMENT:-}")"
 
-  image_name="$REPOSITORY_OWNER/$image_name_base-$expansion-custom"
-  image="$REGISTRY/$image_name"
+    image_name="$REPOSITORY_OWNER/$image_name_base-$expansion-custom"
+    image="$REGISTRY/$image_name"
 
-  if [[ -n "$custom_tag_fragment" ]]; then
-    sanitized_custom_tag_fragment="$(sanitize_docker_tag_fragment "$custom_tag_fragment")"
-    primary_tag="$expansion-$sanitized_custom_tag_fragment"
-  else
-    sanitized_core_owner="$(sanitize_docker_tag_fragment "$core_repository_owner")"
-    sanitized_core_name="$(sanitize_docker_tag_fragment "$core_repository_name")"
-    primary_tag="$expansion-$sanitized_core_owner-$sanitized_core_name"
-    primary_tag+="-core.$(normalize_revision "$core_revision")"
-    primary_tag+="-db.$(normalize_revision "$database_revision")"
-    primary_tag+="-playerbots.$(normalize_revision "$playerbots_revision")"
-  fi
+    if [[ -n "$custom_tag_fragment" ]]; then
+      sanitized_custom_tag_fragment="$(sanitize_docker_tag_fragment "$custom_tag_fragment")"
+      primary_tag="$expansion-$sanitized_custom_tag_fragment"
+    else
+      sanitized_core_owner="$(sanitize_docker_tag_fragment "$core_repository_owner")"
+      sanitized_core_name="$(sanitize_docker_tag_fragment "$core_repository_name")"
+      primary_tag="$expansion-$sanitized_core_owner-$sanitized_core_name"
+      primary_tag+="-core.$(normalize_revision "$core_revision")"
+      primary_tag+="-db.$(normalize_revision "$database_revision")"
+      primary_tag+="-playerbots.$(normalize_revision "$playerbots_revision")"
+    fi
 
-  ref_name="$image:$primary_tag"
-  tags+=("$ref_name")
+    ref_name="$image:$primary_tag"
+    tags+=("$ref_name")
 
-  # Custom images do not define an OCI version, so clear the inherited base
-  # image version label without adding a matching manifest/index annotation.
-  label_only_entries+=("version=")
-  mode_metadata_entries+=("revision=$core_revision")
-  ;;
-*)
-  fail "Unsupported workflow mode '$WORKFLOW_MODE'."
-  ;;
+    # Custom images do not define an OCI version, so clear the inherited base
+    # image version label without adding a matching manifest/index annotation.
+    label_only_entries+=("version=")
+    mode_metadata_entries+=("revision=$core_revision")
+    ;;
+  *)
+    fail "Unsupported workflow mode '$WORKFLOW_MODE'."
+    ;;
 esac
 
 build_args+=(

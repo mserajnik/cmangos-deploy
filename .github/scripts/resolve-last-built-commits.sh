@@ -61,24 +61,24 @@ result='{}'
 
 for expansion in classic tbc wotlk; do
   case "$expansion" in
-  classic)
-    core_name="mangos-classic"
-    db_name="classic-db"
-    core_cutoff="$CORE_CUTOFF_CLASSIC"
-    db_cutoff="$DATABASE_CUTOFF_CLASSIC"
-    ;;
-  tbc)
-    core_name="mangos-tbc"
-    db_name="tbc-db"
-    core_cutoff="$CORE_CUTOFF_TBC"
-    db_cutoff="$DATABASE_CUTOFF_TBC"
-    ;;
-  wotlk)
-    core_name="mangos-wotlk"
-    db_name="wotlk-db"
-    core_cutoff="$CORE_CUTOFF_WOTLK"
-    db_cutoff="$DATABASE_CUTOFF_WOTLK"
-    ;;
+    classic)
+      core_name="mangos-classic"
+      db_name="classic-db"
+      core_cutoff="$CORE_CUTOFF_CLASSIC"
+      db_cutoff="$DATABASE_CUTOFF_CLASSIC"
+      ;;
+    tbc)
+      core_name="mangos-tbc"
+      db_name="tbc-db"
+      core_cutoff="$CORE_CUTOFF_TBC"
+      db_cutoff="$DATABASE_CUTOFF_TBC"
+      ;;
+    wotlk)
+      core_name="mangos-wotlk"
+      db_name="wotlk-db"
+      core_cutoff="$CORE_CUTOFF_WOTLK"
+      db_cutoff="$DATABASE_CUTOFF_WOTLK"
+      ;;
   esac
 
   package_name="cmangos-database-$expansion"

@@ -30,10 +30,10 @@ require_env PLAYERBOTS_LAST_BUILT_COMMIT_HASH
 require_env PLAYERBOTS_CURRENT_COMMIT_HASH
 
 case "$EXPANSION" in
-classic | tbc | wotlk) ;;
-*)
-  fail "Unsupported expansion '$EXPANSION'."
-  ;;
+  classic | tbc | wotlk) ;;
+  *)
+    fail "Unsupported expansion '$EXPANSION'."
+    ;;
 esac
 
 if [[ ! -f "$STATE_FILE" ]]; then
