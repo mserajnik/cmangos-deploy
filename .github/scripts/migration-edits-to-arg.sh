@@ -5,7 +5,7 @@
 
 # Flattens a per-expansion migration edit state file to the
 # `CMANGOS_MIGRATION_EDITS` build argument: pipe-separated database entries,
-# each `<database>:<source>@<commit hash>,...` (null source entries are
+# each `<database>:<source>@<commit-hash>,...` (null source entries are
 # omitted; a database whose sources are all null renders as `<database>:`).
 
 set -euo pipefail

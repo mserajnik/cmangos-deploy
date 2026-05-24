@@ -369,8 +369,8 @@ docker compose attach mangosd
 After attaching, create the account and assign an account level:
 
 ```sh
-account create <account name> <account password>
-account set gmlevel <account name> <account level>
+account create <account-name> <account-password>
+account set gmlevel <account-name> <account-level>
 ```
 
 The available account levels are:
@@ -396,7 +396,7 @@ that has to be set per account. New accounts default to level `0`, which
 corresponds to Classic. To unlock expansion content, run:
 
 ```sh
-account set addon <account name> <expansion level>
+account set addon <account-name> <expansion-level>
 ```
 
 The available expansion levels are:

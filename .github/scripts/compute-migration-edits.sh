@@ -142,7 +142,7 @@ walk_one() {
 
   local scanned=0
   local commit_hash
-  # Each iteration makes one `gh api ...commits/<commit hash>` call. The 5000
+  # Each iteration makes one `gh api ...commits/<commit_hash>` call. The 5000
   # calls per hour `GITHUB_TOKEN` rate limit bounds the worst case (~14 months
   # of history from the cutoff anchor on a fresh fork's first build).
   while IFS= read -r commit_hash; do
