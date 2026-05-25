@@ -245,6 +245,11 @@ jobs:
       combined_revision_tag: ${{ fromJSON(needs.setup.outputs.build_metadata)[matrix.expansion].combined_revision_tag }}
       migration_edits: ${{ fromJSON(needs.setup.outputs.migration_edits)[matrix.expansion] }}
 
+  # Keep only a short retention window. Long-term availability of older images
+  # is explicitly not promised: breaking changes accumulate over time, and
+  # users running stale images risk hitting issues that have already been fixed
+  # upstream. Anyone who needs an image for a specific commit should build it
+  # locally.
   delete-old-package-versions:
     name: Delete old package versions
     needs: [setup, build-and-push-server-images, build-and-push-database-images]
@@ -270,10 +275,8 @@ jobs:
         with:
           package-name: ${{ matrix.package_name }}
           package-type: container
-          # Each multi-arch image publish creates one image index plus two
-          # image manifests. Keeping 40 builds per package therefore means
-          # keeping 120 package versions.
-          min-versions-to-keep: 120
+          # 7 builds * (1 index + 2 manifests) = 21.
+          min-versions-to-keep: 21
 
   update-badges:
     name: Update badges
