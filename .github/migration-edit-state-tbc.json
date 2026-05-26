@@ -5,8 +5,8 @@
       "subject": "Hunter: Reimplement script for tame beast and add level check"
     },
     "database": {
-      "commit": "8b8b555020ec72fb50b38d26ec8752babb60212e",
-      "subject": "And a couple more pool errors bite the dust"
+      "commit": "7137ad61bcb84fc1917a673283586abaae51e6fd",
+      "subject": "[ACID][Instance] Serpentshrine Cavern - Part 1  (#1289)"
     },
     "playerbots": null
   },
