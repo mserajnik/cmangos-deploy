@@ -72,7 +72,7 @@ sanitize_docker_tag_fragment() {
 short_revision() {
   local revision="$1"
 
-  printf '%s' "${revision:0:12}"
+  printf '%s' "${revision:0:7}"
 }
 
 package_versions_endpoint() {

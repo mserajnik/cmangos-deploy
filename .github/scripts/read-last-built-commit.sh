@@ -46,8 +46,8 @@ all_tags="$(existing_tags_for_package "$PACKAGE_OWNER" "$PACKAGE_NAME")"
 # newest-first) and extract the short commit hash for this source. The regex
 # tolerates the three fragments appearing in any order.
 short_commit_hash=""
-combined_tag_regex='^[a-z]+-(core|db|playerbots)\.[0-9a-f]{12}-(core|db|playerbots)\.[0-9a-f]{12}-(core|db|playerbots)\.[0-9a-f]{12}$'
-fragment_regex="(^|-)${tag_fragment}\.([0-9a-f]{12})(-|$)"
+combined_tag_regex='^[a-z]+-(core|db|playerbots)\.[0-9a-f]{7}-(core|db|playerbots)\.[0-9a-f]{7}-(core|db|playerbots)\.[0-9a-f]{7}$'
+fragment_regex="(^|-)${tag_fragment}\.([0-9a-f]{7})(-|$)"
 
 while IFS= read -r tag; do
   [[ -z "$tag" ]] && continue

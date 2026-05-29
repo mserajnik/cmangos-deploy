@@ -75,7 +75,7 @@ normalize_revision() {
 
   revision="$(trim "$1")"
 
-  if [[ "$revision" =~ ^[0-9a-fA-F]{12,}$ ]]; then
+  if [[ "$revision" =~ ^[0-9a-fA-F]{7,}$ ]]; then
     revision="$(short_revision "$revision")"
   fi
 

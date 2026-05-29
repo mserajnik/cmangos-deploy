@@ -20,22 +20,22 @@ managing a CMaNGOS setup:
 - __Prebuilt Docker images for both `amd64` and `arm64`, leveraging GitHub__
   __Actions:__ simply pull the provided images that have been optimized for
   size, performance and stability instead of having to re-compile CMaNGOS
-  yourself every time you want to update
+  yourself every time you want to update.
 - __Support for all three CMaNGOS expansions:__ Classic, TBC and WotLK are each
-  available as separate prebuilt images
+  available as separate prebuilt images.
 - __Built-in [Playerbots][playerbots] support:__ bots can be spawned on demand,
-  or they can populate the world automatically
+  or they can populate the world automatically.
 - __Seamless, automated database migrations:__ when pulling the latest Docker
   images and re-creating the containers, migrations are applied automatically
-  to keep your database up to date at all times
+  to keep your database up to date at all times.
 - __A transparent and easy-to-follow user experience:__ the number of different
   commands that need to be run to install and manage CMaNGOS is kept to a
   minimum. You can use the Docker CLI or any other tool that is able to manage
-  Docker containers
+  Docker containers.
 - __A clean and organized structure:__ the CMaNGOS configuration for each
   expansion can be found in [`./config/<expansion>`](config), everything else
   that is shared between the Docker containers and your host system lives
-  inside [`./storage/<expansion>`](storage)
+  inside [`./storage/<expansion>`](storage).
 
 > [!NOTE]
 > The Docker images are built on a daily schedule, unless there have been no
@@ -198,10 +198,10 @@ By default, the latest available images are used. Alternatively, you can also
 select specific ones via their combined revision tag. Each image is tagged with
 a tag of the form
 `<expansion>-core.<core-revision>-db.<db-revision>-playerbots.<playerbots-revision>`,
-where each revision is a 12-character prefix of the matching commit hash. For
+where each revision is a 7-character prefix of the matching commit hash. For
 example, a Classic build might have the tag
-`classic-core.1aea167db349-db.2c980fa2175c-playerbots.c33dfac220eb` on both the
-server and database images.
+`classic-core.1aea167-db.2c980fa-playerbots.c33dfac` on both the server and
+database images.
 
 > [!IMPORTANT]
 > When you decide to select images via combined revision tag you should always
