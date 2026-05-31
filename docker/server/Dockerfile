@@ -38,7 +38,6 @@ RUN \
     libicu-dev \
     libmysqlclient-dev \
     libssl-dev \
-    python3 \
     zlib1g-dev && \
   git clone "$CMANGOS_CORE_REPOSITORY_URL" /build/core && \
   git clone "$CMANGOS_PLAYERBOTS_REPOSITORY_URL" /build/playerbots && \
@@ -118,9 +117,6 @@ ARG CMANGOS_GROUP_ID
 ARG CMANGOS_USER_NAME
 ARG CMANGOS_GROUP_NAME
 
-# Force the Python stdout and stderr streams to be unbuffered so we can see the
-# output from extractor scripts while they are running.
-ENV PYTHONUNBUFFERED=1
 ENV CMANGOS_EXPANSION=$CMANGOS_EXPANSION
 
 RUN \
@@ -139,7 +135,6 @@ RUN \
     libmysqlclient24 \
     libssl3t64 \
     netcat-openbsd \
-    python3 \
     zlib1g && \
   # The Ubuntu 26.04 LTS Docker image has a user called `ubuntu` with UID 1000
   # and GID 1000 by default. Since we allow configuration of the name, UID and
