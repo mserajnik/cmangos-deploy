@@ -5,8 +5,8 @@
       "subject": "BEM: Implement at_vindicator_vuuleen whisper script"
     },
     "database": {
-      "commit": "515bdfc81928a6dfb7dfaccc914ccd675f81530f",
-      "subject": "Add last missing chest spawn"
+      "commit": "a194dd6b99b37fea0f2ac08234b29661054406df",
+      "subject": "Update [0717] Typo"
     },
     "playerbots": null
   },
