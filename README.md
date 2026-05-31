@@ -12,10 +12,10 @@
 
 > A Docker setup for CMaNGOS
 
-This is a Docker-based solution for running [CMaNGOS][cmangos] that focuses on
-providing a streamlined and user-friendly experience. It is largely based on
-[vmangos-deploy][vmangos-deploy] and offers a range of features that simplify
-managing a CMaNGOS setup:
+cmangos-deploy is a Docker-based solution for running [CMaNGOS][cmangos] that
+focuses on providing a streamlined and user-friendly experience. It is largely
+based on [vmangos-deploy][vmangos-deploy] and offers a range of features that
+simplify managing a CMaNGOS setup:
 
 - __Prebuilt Docker images for both `amd64` and `arm64`, leveraging GitHub__
   __Actions:__ simply pull the provided images that have been optimized for
