@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "b1b7fce6a9c920072ba498e30c9d7b8c35d229cb",
-      "subject": "BEM: Implement at_vindicator_vuuleen whisper script"
+      "commit": "94284bec9ed32857bad6ab51941985b7dde5a3a1",
+      "subject": "Netherstorm: Add invalid target error to s.34520"
     },
     "database": {
       "commit": "a194dd6b99b37fea0f2ac08234b29661054406df",
