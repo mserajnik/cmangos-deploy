@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "94284bec9ed32857bad6ab51941985b7dde5a3a1",
-      "subject": "Netherstorm: Add invalid target error to s.34520"
+      "commit": "4932113f30e1d12a768ee1d69430457e37a3ecb9",
+      "subject": "Add s.38687 for force reaction"
     },
     "database": {
       "commit": "a194dd6b99b37fea0f2ac08234b29661054406df",
