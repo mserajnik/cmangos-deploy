@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "4932113f30e1d12a768ee1d69430457e37a3ecb9",
-      "subject": "Add s.38687 for force reaction"
+      "commit": "b2efbf7adf0c0abfecdcff35593c5672821c1c0a",
+      "subject": "Fix arcane shot coeffs"
     },
     "database": {
-      "commit": "a194dd6b99b37fea0f2ac08234b29661054406df",
-      "subject": "Update [0717] Typo"
+      "commit": "85e83e3fca1400b4aa000d852fdab5d2f0b61fd9",
+      "subject": "[Custom] Ring of Blood Quests dont fail on a single person dying"
     },
     "playerbots": null
   },

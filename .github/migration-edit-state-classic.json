@@ -1,7 +1,10 @@
 {
   "world": {
     "core": null,
-    "database": null,
+    "database": {
+      "commit": "51599721ddc388cabba9fed195ea875d108fe766",
+      "subject": "[ACID] Remove Flee for Rot Hide Gnoll 1674 again"
+    },
     "playerbots": null
   },
   "characters": {
