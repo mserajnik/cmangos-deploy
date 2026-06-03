@@ -61,6 +61,7 @@ simplify managing a CMaNGOS setup:
   - [Updating](#updating)
     - [What happens during an update](#what-happens-during-an-update)
     - [When cmangos-deploy asks you to apply changes manually](#when-cmangos-deploy-asks-you-to-apply-changes-manually)
+    - [Breaking changes](#breaking-changes)
   - [Creating database backups](#creating-database-backups)
   - [Accessing the database](#accessing-the-database)
   - [Database security](#database-security)
@@ -284,7 +285,10 @@ There are two things to look out for here:
 Once the extraction is finished you can find the data in
 `./storage/<expansion>/mangosd/extracted-data`. Note that you may want to
 re-run the process in the future if CMaNGOS makes changes (to benefit from
-potentially improved mob movement etc.).
+potentially improved mob movement etc.). In case it becomes necessary to do so
+(e.g., if the extraction process changes), the
+_[Breaking changes](#breaking-changes)_ section further below will be updated
+accordingly.
 
 If you re-run the extraction, it will automatically detect previously extracted
 data and ask you if you want to continue (which will overwrite the old data).
@@ -490,6 +494,17 @@ you instead want to abort, run `docker compose down`.
 > CMaNGOS may fail to start. The responsibility for matching what the commits
 > do is yours; cmangos-deploy provides no further support for resolving these
 > issues.
+
+#### Breaking changes
+
+It is recommended to regularly check this repository (either manually or by
+updating your local repository via `git pull`). Usually, the commits here will
+just consist of maintenance and potentially new CMaNGOS configuration options
+(that you may want to incorporate into your configuration).
+
+Sometimes, there may be new features or changes that require manual
+intervention. Such breaking changes will be listed here (and removed again once
+they become irrelevant).
 
 ### Creating database backups
 
