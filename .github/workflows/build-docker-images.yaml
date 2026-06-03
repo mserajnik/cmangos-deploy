@@ -256,27 +256,19 @@ jobs:
     if: ${{ needs.setup.outputs.any_images_to_build == 'true' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        package_name:
-          - cmangos-server-classic
-          - cmangos-server-tbc
-          - cmangos-server-wotlk
-          - cmangos-database-classic
-          - cmangos-database-tbc
-          - cmangos-database-wotlk
 
     steps:
       - name: Delete old package versions
-        uses: actions/delete-package-versions@v5
+        uses: snok/container-retention-policy@v3.1.0
         with:
-          package-name: ${{ matrix.package_name }}
-          package-type: container
-          # 7 builds * (1 index + 2 manifests) = 21.
-          min-versions-to-keep: 21
+          account: user
+          token: ${{ github.token }}
+          image-names: >-
+            cmangos-server-classic cmangos-server-tbc cmangos-server-wotlk
+            cmangos-database-classic cmangos-database-tbc
+            cmangos-database-wotlk
+          cut-off: 2w
 
   update-badges:
     name: Update badges
