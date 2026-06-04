@@ -2,8 +2,8 @@
   "world": {
     "core": null,
     "database": {
-      "commit": "51599721ddc388cabba9fed195ea875d108fe766",
-      "subject": "[ACID] Remove Flee for Rot Hide Gnoll 1674 again"
+      "commit": "7505fe3358ba58a9048c671fcb5007e49b3636d9",
+      "subject": "[TDB] Update [0689][0688] Remove more Crisp Spider Meat, use cmangos RequiredRaces value for porting"
     },
     "playerbots": null
   },

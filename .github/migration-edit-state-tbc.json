@@ -5,8 +5,8 @@
       "subject": "Fix arcane shot coeffs"
     },
     "database": {
-      "commit": "85e83e3fca1400b4aa000d852fdab5d2f0b61fd9",
-      "subject": "[Custom] Ring of Blood Quests dont fail on a single person dying"
+      "commit": "f6cba21334ffd1083e6013a87b2f8b5beedb9689",
+      "subject": "Update [0688] Use 1791 All Races (TBC & WotLK) RequiredRaces as seen in ccsdb_tbc"
     },
     "playerbots": null
   },
