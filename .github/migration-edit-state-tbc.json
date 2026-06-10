@@ -5,8 +5,8 @@
       "subject": "Fix arcane shot coeffs"
     },
     "database": {
-      "commit": "f6cba21334ffd1083e6013a87b2f8b5beedb9689",
-      "subject": "Update [0688] Use 1791 All Races (TBC & WotLK) RequiredRaces as seen in ccsdb_tbc"
+      "commit": "993a95d7b7155a097b6d14e7a2200c06b91aee33",
+      "subject": "Fix typo in [0728]"
     },
     "playerbots": null
   },
