@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "9852f04575154c3d5d4fd8cf9c2c2a9f536a277e",
-      "subject": "[14101] Quest: Fix mistake with naming"
+      "commit": "a9260c3003ec2afc6ca30b85cf5dec7b354c1783",
+      "subject": "Fix Violet hold"
     },
     "database": null,
     "playerbots": null
