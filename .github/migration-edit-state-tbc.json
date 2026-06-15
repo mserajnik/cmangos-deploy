@@ -5,8 +5,8 @@
       "subject": "Fix arcane shot coeffs"
     },
     "database": {
-      "commit": "993a95d7b7155a097b6d14e7a2200c06b91aee33",
-      "subject": "Fix typo in [0728]"
+      "commit": "f17bf39a7e1b8550c2030bceeb7f7368a7cf3f7f",
+      "subject": "[Instance] ShadowLabs - Fix Blackheart the Inciter aggro linking with all groups in his room"
     },
     "playerbots": null
   },
