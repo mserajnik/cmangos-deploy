@@ -104,7 +104,7 @@ jobs:
           MARIADB_DOCKER_REPOSITORY: ${{ steps.resolve-sources.outputs.mariadb_docker_repository }}
           MARIADB_DOCKER_LATEST_COMMIT_HASH: ${{ steps.resolve-sources.outputs.mariadb_docker_commit_hash }}
           CMANGOS_CLASSIC_KNOWN_COMMIT_HASH: 4d42ae0bfac5b70b6c3f73a6827f57fdf27d32b2
-          CMANGOS_TBC_KNOWN_COMMIT_HASH: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
+          CMANGOS_TBC_KNOWN_COMMIT_HASH: 5a1a5024d1f0b6000a5ce3e01bb74a65e7b83773
           CMANGOS_WOTLK_KNOWN_COMMIT_HASH: 7adc78acaa79716b522fff60c09568b347754711
           CLASSIC_DB_KNOWN_COMMIT_HASH: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
           TBC_DB_KNOWN_COMMIT_HASH: 7d5224900b2cc484de5e06fa101965703ea27a0a
