@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Resolve only the MariaDB entrypoint commit hash up front. We
       # intentionally skip resolving the CMaNGOS-side commit hashes here (and
