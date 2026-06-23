@@ -5,8 +5,8 @@
       "subject": "Fix arcane shot coeffs"
     },
     "database": {
-      "commit": "e97abd64a33c7098d4e1a1888dfb7896a2b5f7e5",
-      "subject": "[DBError][Custom] Fix SPELL_ATTR_EX_AURA_UNIQUE query"
+      "commit": "d5a18e4fdfdcf0dfd2f48263d42852a9eb6956cd",
+      "subject": "[ACID] Add missing Emote for s.32938 Cry of the Dead used by c.12377"
     },
     "playerbots": null
   },
