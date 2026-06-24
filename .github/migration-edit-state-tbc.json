@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "b2efbf7adf0c0abfecdcff35593c5672821c1c0a",
-      "subject": "Fix arcane shot coeffs"
+      "commit": "a9192d0a3b307dae3aad9f12278d2db483c54b0f",
+      "subject": "Fix sql syntax from previous commit"
     },
     "database": {
-      "commit": "d5a18e4fdfdcf0dfd2f48263d42852a9eb6956cd",
-      "subject": "[ACID] Add missing Emote for s.32938 Cry of the Dead used by c.12377"
+      "commit": "727f506ce65dbdee8d723c1f7835d643c6e660ec",
+      "subject": "[ACID] Add Emotes & Attack on Spawn for Shy-Rotam 10737"
     },
     "playerbots": null
   },
