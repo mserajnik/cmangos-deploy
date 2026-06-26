@@ -53,11 +53,11 @@ RUN \
     # not exist.
     for patch in \
       /build/patches/all/*.patch \
-      /build/patches/$CMANGOS_EXPANSION/*.patch \
+      /build/patches/"$CMANGOS_EXPANSION"/*.patch \
       /build/patches/all/database/*.patch \
-      /build/patches/$CMANGOS_EXPANSION/database/*.patch \
+      /build/patches/"$CMANGOS_EXPANSION"/database/*.patch \
       /build/patches/all/playerbots/*.patch \
-      /build/patches/$CMANGOS_EXPANSION/playerbots/*.patch; \
+      /build/patches/"$CMANGOS_EXPANSION"/playerbots/*.patch; \
     do \
       if [ -f "$patch" ]; then \
         case "$patch" in \
@@ -75,7 +75,7 @@ RUN \
         patch_count=$((patch_count + 1)); \
       fi; \
     done; \
-    if [ $patch_count -eq 0 ]; then \
+    if [ "$patch_count" -eq 0 ]; then \
       echo "No patches found"; \
     fi; \
   else \
