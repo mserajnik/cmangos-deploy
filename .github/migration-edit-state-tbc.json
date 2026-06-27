@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "a9192d0a3b307dae3aad9f12278d2db483c54b0f",
-      "subject": "Fix sql syntax from previous commit"
+      "commit": "d5911da57ce979cc0f40964109c35f26b27cb59a",
+      "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "727f506ce65dbdee8d723c1f7835d643c6e660ec",
-      "subject": "[ACID] Add Emotes & Attack on Spawn for Shy-Rotam 10737"
+      "commit": "5d69d06bf91cae588d033fcc6a2cd35daa70d917",
+      "subject": "[ACID] Ethereum Overlord 20459 despawns weapons on death"
     },
     "playerbots": null
   },
