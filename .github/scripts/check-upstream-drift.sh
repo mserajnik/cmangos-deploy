@@ -38,11 +38,11 @@ add_github_check() {
 # the top-level `CMakeLists.txt`, which is where new `find_package(...)` would
 # typically introduce a new dependency that we would need to install).
 per_expansion_paths=(
+  CMakeLists.txt
+  src/game/Anticheat/module/anticheat.conf.dist.in
+  src/game/AuctionHouseBot/ahbot.conf.dist.in
   src/mangosd/mangosd.conf.dist.in
   src/realmd/realmd.conf.dist.in
-  src/game/AuctionHouseBot/ahbot.conf.dist.in
-  src/game/Anticheat/module/anticheat.conf.dist.in
-  CMakeLists.txt
 )
 
 if [[ -n "${CMANGOS_CLASSIC_REPOSITORY:-}${CMANGOS_CLASSIC_LATEST_COMMIT_HASH:-}${CMANGOS_CLASSIC_KNOWN_COMMIT_HASH:-}" ]]; then

@@ -1,7 +1,7 @@
+/compose*.yaml
 /config/**/*
 !/config/**/
 /storage/**
 !/storage/**/
-/compose*.yaml
 !**/*.example
 !/**/.gitkeep

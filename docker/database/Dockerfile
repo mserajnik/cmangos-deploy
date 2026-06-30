@@ -81,7 +81,7 @@ RUN \
   else \
     echo "No repository to apply patches from provided"; \
   fi && \
-  mkdir -p /sql/core /sql/database /sql/playerbots /sql/custom && \
+  mkdir -p /sql/core /sql/custom /sql/database /sql/playerbots && \
   cp -a /build/core/sql/base /sql/core/base && \
   cp -a /build/core/sql/updates /sql/core/updates && \
   cp -a /build/core/sql/scriptdev2 /sql/core/scriptdev2 && \

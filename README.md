@@ -34,9 +34,9 @@ simplify managing a CMaNGOS setup:
   minimum. You can use the Docker CLI or any other tool that is able to manage
   Docker containers.
 - __A clean and organized structure:__ the CMaNGOS configuration for each
-  expansion can be found in [`./config/<expansion>`](config), everything else
+  expansion can be found in [`config/<expansion>/`](config), everything else
   that is shared between the Docker containers and your host system lives
-  inside [`./storage/<expansion>`](storage).
+  inside [`storage/<expansion>/`](storage).
 
 > [!NOTE]
 > The Docker images are built on a daily schedule, unless there have been no
@@ -128,11 +128,11 @@ cd cmangos-deploy
 ```
 
 cmangos-deploy supports three expansions, each with its own configuration
-directory under [`./config`](config):
+directory under [`config/`](config):
 
-- [`./config/classic`](config/classic) for Classic
-- [`./config/tbc`](config/tbc) for TBC
-- [`./config/wotlk`](config/wotlk) for WotLK
+- [`config/classic/`](config/classic) for Classic
+- [`config/tbc/`](config/tbc) for TBC
+- [`config/wotlk/`](config/wotlk) for WotLK
 
 Pick the one matching the expansion you want to run and create copies of the
 provided CMaNGOS example configuration files in that directory. For example,
@@ -245,10 +245,10 @@ connections.
 CMaNGOS uses data that is generated from extracted client data to handle things
 like mob movement and line of sight. If you have already acquired this data
 previously, you can place it directly into
-`./storage/<expansion>/mangosd/extracted-data` and skip the next steps.
+`storage/<expansion>/mangosd/extracted-data/` and skip the next steps.
 
 To extract the data, first copy the contents of your client directory into
-`./storage/<expansion>/mangosd/client-data`. Next, run the following command,
+`storage/<expansion>/mangosd/client-data/`. Next, run the following command,
 substituting the image for the expansion you want to extract for. For example,
 for Classic:
 
@@ -284,12 +284,11 @@ There are two things to look out for here:
 > about (as long as the execution continues afterwards).
 
 Once the extraction is finished you can find the data in
-`./storage/<expansion>/mangosd/extracted-data`. Note that you may want to
-re-run the process in the future if CMaNGOS makes changes (to benefit from
-potentially improved mob movement etc.). In case it becomes necessary to do so
-(e.g., if the extraction process changes), the
-_[Breaking changes](#breaking-changes)_ section further below will be updated
-accordingly.
+`storage/<expansion>/mangosd/extracted-data/`. Note that you may want to re-run
+the process in the future if CMaNGOS makes changes (to benefit from potentially
+improved mob movement etc.). In case it becomes necessary to do so (e.g., if
+the extraction process changes), the _[Breaking changes](#breaking-changes)_
+section further below will be updated accordingly.
 
 If you re-run the extraction, it will automatically detect previously extracted
 data and ask you if you want to continue (which will overwrite the old data).
@@ -312,7 +311,7 @@ docker run \
 
 If you want to make custom changes to the world database, it is recommended to
 do so using SQL files and placing them in
-`./storage/<expansion>/database/custom-sql` (a bind mount for this directory is
+`storage/<expansion>/database/custom-sql/` (a bind mount for this directory is
 [configured out-of-the-box][compose-custom-sql-bind-mount]). The files in this
 directory are processed on every startup, including after cmangos-deploy
 re-creates the world database to apply an upstream migration edit (see the
