@@ -19,21 +19,21 @@ based on [vmangos-deploy][vmangos-deploy] and offers a range of features that
 simplify managing a CMaNGOS setup:
 
 - __Prebuilt Docker images for both `amd64` and `arm64`, leveraging GitHub__
-  __Actions:__ simply pull the provided images that have been optimized for
+  __Actions__: simply pull the provided images that have been optimized for
   size, performance and stability instead of having to re-compile CMaNGOS
   yourself every time you want to update.
-- __Support for all three CMaNGOS expansions:__ Classic, TBC and WotLK are each
+- __Support for all three CMaNGOS expansions__: Classic, TBC and WotLK are each
   available as separate prebuilt images.
-- __Built-in [Playerbots][playerbots] support:__ bots can be spawned on demand,
+- __Built-in [Playerbots][playerbots] support__: bots can be spawned on demand,
   or they can populate the world automatically.
-- __Seamless, automated database migrations:__ when pulling the latest Docker
+- __Seamless, automated database migrations__: when pulling the latest Docker
   images and re-creating the containers, migrations are applied automatically
   to keep your database up to date at all times.
-- __A transparent and easy-to-follow user experience:__ the number of different
+- __A transparent and easy-to-follow user experience__: the number of different
   commands that need to be run to install and manage CMaNGOS is kept to a
   minimum. You can use the Docker CLI or any other tool that is able to manage
   Docker containers.
-- __A clean and organized structure:__ the CMaNGOS configuration for each
+- __A clean and organized structure__: the CMaNGOS configuration for each
   expansion can be found in [`config/<expansion>/`](config), everything else
   that is shared between the Docker containers and your host system lives
   inside [`storage/<expansion>/`](storage).
