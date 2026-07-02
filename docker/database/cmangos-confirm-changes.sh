@@ -9,7 +9,7 @@
 
 set -eu
 
-if [ ! -f /tmp/cmangos-changes-pending ]; then
+if [[ ! -f /tmp/cmangos-changes-pending ]]; then
   echo "[cmangos-deploy]: ERROR: cmangos-deploy is not currently waiting for confirmation. Nothing to do." >&2
   exit 1
 fi

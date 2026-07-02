@@ -16,19 +16,19 @@ source "/opt/scripts/db-functions.sh"
 clear_database_ready
 clear_change_sentinels
 
-if [ "${CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS:-0}" = "1" ]; then
+if [[ "${CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS:-0}" = "1" ]]; then
   cmangos_log "[x] Automatic world database corrections are enabled."
 else
   cmangos_log "[ ] Automatic world database corrections are disabled."
 fi
 
-if [ "${CMANGOS_HALT_ON_MIGRATION_EDITS:-0}" = "1" ]; then
+if [[ "${CMANGOS_HALT_ON_MIGRATION_EDITS:-0}" = "1" ]]; then
   cmangos_log "[x] Halting on migration edits is enabled."
 else
   cmangos_log "[ ] Halting on migration edits is disabled."
 fi
 
-if [ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]; then
+if [[ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]]; then
   cmangos_log "[x] Custom SQL processing is enabled."
 else
   cmangos_log "[ ] Custom SQL processing is disabled."
@@ -46,12 +46,12 @@ process_userstate_correction "characters"
 process_userstate_correction "realmd"
 process_userstate_correction "logs"
 
-if [ "${#PENDING_DB_NAMES[@]}" -gt 0 ]; then
+if [[ "${#PENDING_DB_NAMES[@]}" -gt 0 ]]; then
   print_correction_abort_message
   wait_for_change_ack
 
   i=0
-  while [ "$i" -lt "${#PENDING_DB_NAMES[@]}" ]; do
+  while [[ "$i" -lt "${#PENDING_DB_NAMES[@]}" ]]; do
     acknowledge_correction "${PENDING_DB_NAMES[$i]}" "${PENDING_DB_COMMIT_HASHES[$i]}"
     i=$((i + 1))
   done
@@ -67,7 +67,7 @@ apply_versioned_updates "logs" "/sql/core/updates/logs" "logs"
 apply_world_static_sql "mangos"
 apply_character_static_sql "characters"
 
-if [ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]; then
+if [[ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]]; then
   process_custom_sql "/sql/custom"
 fi
 

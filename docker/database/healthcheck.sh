@@ -10,7 +10,7 @@
 
 set -eu
 
-if [ ! -f /tmp/cmangos-database-ready ]; then
+if [[ ! -f /tmp/cmangos-database-ready ]]; then
   exit 1
 fi
 

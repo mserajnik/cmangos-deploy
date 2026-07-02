@@ -45,7 +45,7 @@ create_database() {
   local db_name="$1"
   local silent="${2:-false}"
 
-  if [ "$silent" = false ]; then
+  if [[ "$silent" = false ]]; then
     cmangos_log "Creating database '$db_name'..."
   fi
 
@@ -57,7 +57,7 @@ drop_database() {
   local db_name="$1"
   local silent="${2:-false}"
 
-  if [ "$silent" = false ]; then
+  if [[ "$silent" = false ]]; then
     cmangos_log "Dropping database '$db_name'..."
   fi
 
@@ -69,7 +69,7 @@ grant_permissions() {
   local db_name="$1"
   local silent="${2:-false}"
 
-  if [ "$silent" = false ]; then
+  if [[ "$silent" = false ]]; then
     cmangos_log "Granting permissions to database user '$MARIADB_USER' for database '$db_name'..."
   fi
 
@@ -157,7 +157,7 @@ apply_tracked_sql_file() {
   local sql_key="$3"
   local description="${4:-$(basename "$file")}"
 
-  if [ ! -f "$file" ]; then
+  if [[ ! -f "$file" ]]; then
     # The SQL file not existing is not an error, so we return 0 (success) here.
     return 0
   fi
@@ -181,13 +181,13 @@ apply_tracked_sql_dir() {
   local recursive="${4:-false}"
   local sql_file
 
-  if [ ! -d "$dir" ]; then
+  if [[ ! -d "$dir" ]]; then
     return 0
   fi
 
-  if [ "$recursive" = true ]; then
+  if [[ "$recursive" = true ]]; then
     while read -r sql_file; do
-      [ -n "$sql_file" ] || continue
+      [[ -n "$sql_file" ]] || continue
 
       apply_tracked_sql_file \
         "$db_name" \
@@ -198,7 +198,7 @@ $(find "$dir" -type f -name '*.sql' | sort)
 EOF
   else
     while read -r sql_file; do
-      [ -n "$sql_file" ] || continue
+      [[ -n "$sql_file" ]] || continue
 
       apply_tracked_sql_file \
         "$db_name" \
@@ -286,13 +286,13 @@ apply_versioned_updates() {
   local update_name
   local update_rev
 
-  if [ ! -d "$update_dir" ]; then
+  if [[ ! -d "$update_dir" ]]; then
     return 0
   fi
 
   current_version="$(get_current_required_version "$db_name" "$db_kind")"
 
-  if [ -z "$current_version" ]; then
+  if [[ -z "$current_version" ]]; then
     cmangos_log "No current required version found for '$db_name'; applying all '$db_kind' updates."
     current_rev=0
   else
@@ -301,12 +301,12 @@ apply_versioned_updates() {
   fi
 
   while read -r update_file; do
-    [ -n "$update_file" ] || continue
+    [[ -n "$update_file" ]] || continue
 
     update_name="$(basename "$update_file" .sql)"
     update_rev="$(parse_update_rev "$update_name")"
 
-    if [ "$update_rev" -gt "$current_rev" ]; then
+    if [[ "$update_rev" -gt "$current_rev" ]]; then
       cmangos_log "Applying versioned SQL '$update_name' to database '$db_name'..."
       import_sql_file "$db_name" "$update_file"
       applied_count=$((applied_count + 1))
@@ -315,7 +315,7 @@ apply_versioned_updates() {
 $(find "$update_dir" -maxdepth 1 -type f -name '*.sql' | sort)
 EOF
 
-  if [ "$applied_count" -eq 0 ]; then
+  if [[ "$applied_count" -eq 0 ]]; then
     cmangos_log "No new versioned updates found for database '$db_name'."
   fi
 }
@@ -331,7 +331,7 @@ set_latest_content_version_marker() {
 
   latest_update="$(find /sql/database/Updates -maxdepth 1 -type f -name '[0-9]*.sql' | sort | tail -n 1)"
 
-  if [ -z "$latest_update" ]; then
+  if [[ -z "$latest_update" ]]; then
     return 0
   fi
 
@@ -344,11 +344,11 @@ set_latest_content_version_marker() {
        AND COLUMN_NAME LIKE 'content\\_%' \
      ORDER BY ORDINAL_POSITION;")"
 
-  if [ -n "$existing_columns" ]; then
+  if [[ -n "$existing_columns" ]]; then
     printf '%s\n' "$existing_columns" | while read -r column_name; do
-      [ -n "$column_name" ] || continue
+      [[ -n "$column_name" ]] || continue
 
-      if [ "$column_name" != "content_$latest_update" ]; then
+      if [[ "$column_name" != "content_$latest_update" ]]; then
         mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name" -e \
           "ALTER TABLE db_version DROP COLUMN \`$column_name\`;"
       fi
@@ -394,7 +394,7 @@ fix_tbc_locales_gameobject() {
   local world_db="$1"
   local has_old_column
 
-  if [ "$CMANGOS_EXPANSION" != "tbc" ]; then
+  if [[ "$CMANGOS_EXPANSION" != "tbc" ]]; then
     return 0
   fi
 
@@ -406,7 +406,7 @@ fix_tbc_locales_gameobject() {
        AND COLUMN_NAME = 'castbarcaption_loc1' \
      LIMIT 1;")"
 
-  if [ -z "$has_old_column" ]; then
+  if [[ -z "$has_old_column" ]]; then
     return 0
   fi
 
@@ -512,7 +512,7 @@ correction_acknowledged() {
     WHERE \`db_name\` = '$(sql_escape "$db_name")' \
     AND \`commit_hash\` = '$(sql_escape "$commit_hash")';")"
 
-  [ "$count" -gt 0 ]
+  [[ "$count" -gt 0 ]]
 }
 
 acknowledge_correction() {
@@ -546,7 +546,7 @@ parse_migration_edits() {
   MIGRATION_EDIT_LOGS_COMMIT_HASHES=()
 
   local file="/sql/migration-edits"
-  if [ ! -f "$file" ]; then
+  if [[ ! -f "$file" ]]; then
     return 0
   fi
 
@@ -555,7 +555,7 @@ parse_migration_edits() {
   raw="${raw#"${raw%%[![:space:]]*}"}"
   raw="${raw%"${raw##*[![:space:]]}"}"
 
-  if [ -z "$raw" ]; then
+  if [[ -z "$raw" ]]; then
     return 0
   fi
 
@@ -566,7 +566,7 @@ parse_migration_edits() {
     IFS="$saved_ifs"
     db="${slot%%:*}"
     entries="${slot#*:}"
-    if [ -z "$entries" ]; then
+    if [[ -z "$entries" ]]; then
       IFS='|'
       continue
     fi
@@ -575,8 +575,8 @@ parse_migration_edits() {
     for item in $entries; do
       src="${item%%@*}"
       commit_hash="${item#*@}"
-      [ -z "$src" ] && continue
-      [ -z "$commit_hash" ] && continue
+      [[ -z "$src" ]] && continue
+      [[ -z "$commit_hash" ]] && continue
 
       case "$db" in
         world)
@@ -630,7 +630,7 @@ world_db_full_install() {
   local full_world_dump
   full_world_dump="$(get_full_world_dump_file)"
 
-  if [ -z "$full_world_dump" ]; then
+  if [[ -z "$full_world_dump" ]]; then
     cmangos_fail "Unable to locate a full world dump in '/sql/database/Full_DB'."
   fi
 
@@ -652,7 +652,7 @@ PENDING_DB_SOURCES=()
 PENDING_DB_COMMIT_HASHES=()
 
 process_world_correction() {
-  if [ "${#MIGRATION_EDIT_WORLD_SOURCES[@]}" -eq 0 ]; then
+  if [[ "${#MIGRATION_EDIT_WORLD_SOURCES[@]}" -eq 0 ]]; then
     return 0
   fi
 
@@ -671,14 +671,14 @@ process_world_correction() {
     fi
   done
 
-  if [ "${#unack_commit_hashes[@]}" -eq 0 ]; then
+  if [[ "${#unack_commit_hashes[@]}" -eq 0 ]]; then
     return 0
   fi
 
   local enable_auto="${CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS:-0}"
   local halt_on_edits="${CMANGOS_HALT_ON_MIGRATION_EDITS:-0}"
 
-  if [ "$enable_auto" = "1" ]; then
+  if [[ "$enable_auto" = "1" ]]; then
     cmangos_log "Re-creating world database to apply migration edits..."
     world_db_full_install
     for i in "${!unack_commit_hashes[@]}"; do
@@ -687,7 +687,7 @@ process_world_correction() {
     return 0
   fi
 
-  if [ "$halt_on_edits" = "1" ]; then
+  if [[ "$halt_on_edits" = "1" ]]; then
     for i in "${!unack_sources[@]}"; do
       PENDING_DB_NAMES+=("mangos")
       PENDING_DB_SOURCES+=("${unack_sources[i]}")
@@ -729,7 +729,7 @@ process_userstate_correction() {
   local sources=("${!sources_ref}")
   local commit_hashes=("${!commit_hashes_ref}")
 
-  if [ "${#sources[@]}" -eq 0 ]; then
+  if [[ "${#sources[@]}" -eq 0 ]]; then
     return 0
   fi
 
@@ -745,7 +745,7 @@ process_userstate_correction() {
       continue
     fi
 
-    if [ "$halt_on_edits" = "1" ]; then
+    if [[ "$halt_on_edits" = "1" ]]; then
       PENDING_DB_NAMES+=("$db_name")
       PENDING_DB_SOURCES+=("$src")
       PENDING_DB_COMMIT_HASHES+=("$commit_hash")
@@ -795,13 +795,13 @@ EOF
   local src
   local commit_hash
   local url
-  while [ "$i" -lt "${#PENDING_DB_NAMES[@]}" ]; do
+  while [[ "$i" -lt "${#PENDING_DB_NAMES[@]}" ]]; do
     name="${PENDING_DB_NAMES[$i]}"
     src="${PENDING_DB_SOURCES[$i]}"
     commit_hash="${PENDING_DB_COMMIT_HASHES[$i]}"
     url="$(correction_source_url "$src" "$commit_hash")"
     printf '  - %s (%s)\n' "$name" "$src" >&2
-    if [ -n "$url" ]; then
+    if [[ -n "$url" ]]; then
       printf '    %s\n' "$url" >&2
     fi
     i=$((i + 1))
@@ -838,7 +838,7 @@ EOF
 wait_for_change_ack() {
   touch /tmp/cmangos-changes-pending
 
-  while [ ! -f /tmp/cmangos-changes-acknowledged ]; do
+  while [[ ! -f /tmp/cmangos-changes-acknowledged ]]; do
     sleep 5
   done
 
@@ -849,19 +849,19 @@ process_custom_sql() {
   local file_directory="$1"
   local file_count
 
-  if [ ! -d "$file_directory" ]; then
+  if [[ ! -d "$file_directory" ]]; then
     cmangos_log "WARNING: Custom SQL file directory '$file_directory' does not exist." >&2
     return 0
   fi
 
-  if [ ! -r "$file_directory" ] || [ ! -x "$file_directory" ]; then
+  if [[ ! -r "$file_directory" ]] || [[ ! -x "$file_directory" ]]; then
     cmangos_fail "Custom SQL file directory '$file_directory' is not readable by the database user (UID $(id -u)). This is a permission problem on the host: the bind-mounted directory must be readable by that user. Adjust the permissions, then restart."
   fi
 
   file_count=$(find "$file_directory" -name "*.sql" -type f | wc -l)
   cmangos_log "Found $file_count custom SQL file(s) to process."
 
-  if [ "$file_count" -gt 0 ]; then
+  if [[ "$file_count" -gt 0 ]]; then
     find "$file_directory" -name "*.sql" -type f | sort | while read -r sql_file; do
       cmangos_log "Processing custom SQL file '$(basename "$sql_file")'..."
 

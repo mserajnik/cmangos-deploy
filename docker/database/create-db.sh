@@ -16,7 +16,7 @@ source "/opt/scripts/db-functions.sh"
 clear_database_ready
 clear_change_sentinels
 
-if [ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]; then
+if [[ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]]; then
   cmangos_log "[x] Custom SQL processing is enabled."
 else
   cmangos_log "[ ] Custom SQL processing is disabled."
@@ -24,7 +24,7 @@ fi
 
 full_world_dump="$(get_full_world_dump_file)"
 
-if [ -z "$full_world_dump" ]; then
+if [[ -z "$full_world_dump" ]]; then
   cmangos_fail "Unable to locate a full world dump in '/sql/database/Full_DB'."
 fi
 
@@ -55,7 +55,7 @@ apply_character_static_sql "characters"
 
 configure_realm
 
-if [ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]; then
+if [[ "${CMANGOS_PROCESS_CUSTOM_SQL:-0}" = "1" ]]; then
   process_custom_sql "/sql/custom"
 fi
 
