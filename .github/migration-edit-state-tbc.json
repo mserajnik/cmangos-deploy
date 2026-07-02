@@ -5,8 +5,8 @@
       "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "5d69d06bf91cae588d033fcc6a2cd35daa70d917",
-      "subject": "[ACID] Ethereum Overlord 20459 despawns weapons on death"
+      "commit": "91b4fc51e0a233f62c4db3fef8487a95a434d29e",
+      "subject": "Fix left group at entrance missing aggro together flag (#1294)"
     },
     "playerbots": null
   },
