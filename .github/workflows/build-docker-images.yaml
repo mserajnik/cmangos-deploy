@@ -109,7 +109,7 @@ jobs:
           CLASSIC_DB_KNOWN_COMMIT_HASH: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
           TBC_DB_KNOWN_COMMIT_HASH: 7d5224900b2cc484de5e06fa101965703ea27a0a
           WOTLK_DB_KNOWN_COMMIT_HASH: cb487b287aa1980aff157f8557999aeada505018
-          PLAYERBOTS_KNOWN_COMMIT_HASH: c33dfac220eb624761b6737324071ad7fae5b39f
+          PLAYERBOTS_KNOWN_COMMIT_HASH: 512edf36b4ccbe7d20d54fa7fb0c2cb6e95dc804
           # When bumping `MARIADB_DOCKER_KNOWN_COMMIT_HASH`, also update the
           # matching commit hash in `docker/database/Dockerfile` and the header
           # comment in `docker/database/docker-entrypoint.sh` so all three stay
