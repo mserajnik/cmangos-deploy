@@ -85,7 +85,7 @@ env:
   OCI_ANNOTATION_SERVER_BASE_NAME: ubuntu:26.04
   OCI_ANNOTATION_DATABASE_TITLE: ${{ format('cmangos-deploy - {0}CMaNGOS {1} database image', inputs.workflow_mode == 'custom' && 'Custom ' || '', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
   OCI_ANNOTATION_DATABASE_DESCRIPTION: ${{ format('Database for the CMaNGOS {0} server emulator.', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
-  OCI_ANNOTATION_DATABASE_BASE_NAME: mariadb:11.8
+  OCI_ANNOTATION_DATABASE_BASE_NAME: mariadb:12.3
 
 jobs:
   prepare:

@@ -13,7 +13,7 @@ ARG CMANGOS_PATCHES_REPOSITORY_URL
 ARG CMANGOS_FAIL_ON_PATCH_ERROR=0
 ARG CMANGOS_MIGRATION_EDITS=
 
-FROM mariadb:11.8 AS build
+FROM mariadb:12.3 AS build
 
 ARG DEBIAN_FRONTEND
 ARG CMANGOS_EXPANSION
@@ -92,12 +92,12 @@ RUN \
   cp -a /build/database/locales /sql/database/locales && \
   cp -a /build/playerbots/sql /sql/playerbots/sql
 
-FROM mariadb:11.8
+FROM mariadb:12.3
 
 ARG CMANGOS_EXPANSION
 ARG CMANGOS_MIGRATION_EDITS
 
-# See https://github.com/MariaDB/mariadb-docker/blob/1b6429ba3544e134715c15f8c56cc6f665f827c9/11.8/docker-entrypoint.sh#L595-L599
+# See https://github.com/MariaDB/mariadb-docker/blob/f8552c80b5104868ff1bb88851ca976bd99029ee/12.3/docker-entrypoint.sh#L595-L599
 ENV MARIADB_AUTO_UPGRADE=1
 ENV MARIADB_USER=mangos
 ENV MARIADB_PASSWORD=mangos
