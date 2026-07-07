@@ -5,8 +5,8 @@
       "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "91b4fc51e0a233f62c4db3fef8487a95a434d29e",
-      "subject": "Fix left group at entrance missing aggro together flag (#1294)"
+      "commit": "9a34e8489d8e0f295a1ed5c77a43553f347ee55b",
+      "subject": "Add a couple more immunities"
     },
     "playerbots": null
   },
