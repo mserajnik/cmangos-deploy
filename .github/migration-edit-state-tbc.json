@@ -5,8 +5,8 @@
       "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "9a34e8489d8e0f295a1ed5c77a43553f347ee55b",
-      "subject": "Add a couple more immunities"
+      "commit": "3d255c7ff2919ac576d4e19b685c762b61e736d6",
+      "subject": "One more immunity and fixed comment"
     },
     "playerbots": null
   },
