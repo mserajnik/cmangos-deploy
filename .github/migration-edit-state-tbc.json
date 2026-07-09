@@ -5,8 +5,8 @@
       "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "3d255c7ff2919ac576d4e19b685c762b61e736d6",
-      "subject": "One more immunity and fixed comment"
+      "commit": "3837b44dcfe8d12797b1f4b76f2eda6666243fc3",
+      "subject": "[ACID] Remove s.34236 for Void Baron Galaxis 16939"
     },
     "playerbots": null
   },
