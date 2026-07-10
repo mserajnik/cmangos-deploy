@@ -5,8 +5,8 @@
       "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "3837b44dcfe8d12797b1f4b76f2eda6666243fc3",
-      "subject": "[ACID] Remove s.34236 for Void Baron Galaxis 16939"
+      "commit": "f782663e0d586f7e6e14b8b54beb5f6c36b91bb0",
+      "subject": "[ACID][Instance] SHH: Add missing s.41634 for Kargath Adds, Increase Trigger Positions"
     },
     "playerbots": null
   },
