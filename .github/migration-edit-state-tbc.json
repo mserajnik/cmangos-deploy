@@ -8,7 +8,10 @@
       "commit": "f782663e0d586f7e6e14b8b54beb5f6c36b91bb0",
       "subject": "[ACID][Instance] SHH: Add missing s.41634 for Kargath Adds, Increase Trigger Positions"
     },
-    "playerbots": null
+    "playerbots": {
+      "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
+      "subject": "Adjust TBC weightscales for prot paladin (#326)"
+    }
   },
   "characters": {
     "core": null,
