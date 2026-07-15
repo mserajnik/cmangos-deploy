@@ -5,8 +5,8 @@
       "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
     },
     "database": {
-      "commit": "f782663e0d586f7e6e14b8b54beb5f6c36b91bb0",
-      "subject": "[ACID][Instance] SHH: Add missing s.41634 for Kargath Adds, Increase Trigger Positions"
+      "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
+      "subject": "[ACID] Improve Dark Conclave Talonite 19825"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
