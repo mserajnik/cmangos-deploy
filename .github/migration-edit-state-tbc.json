@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "d5911da57ce979cc0f40964109c35f26b27cb59a",
-      "subject": "[SD][Spell] Readd Target Change Logic for Raging Flames 20481 (#833)"
+      "commit": "ed731ae4dd1f7e5391b79f62ce0b7af28e484d4d",
+      "subject": "Add poison bolt volley max target limit"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
