@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "ed731ae4dd1f7e5391b79f62ce0b7af28e484d4d",
-      "subject": "Add poison bolt volley max target limit"
+      "commit": "2d9e0e24ae4cfd9ef0ab0921eae1d80eb7d02466",
+      "subject": "Fix Hungarfen mushroom spell bug and behavior (#842)"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
