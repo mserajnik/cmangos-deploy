@@ -1,10 +1,13 @@
 {
   "world": {
     "core": {
-      "commit": "a9260c3003ec2afc6ca30b85cf5dec7b354c1783",
-      "subject": "Fix Violet hold"
+      "commit": "653334975dc0924e2ab80986ffd3e081c8ccb3f5",
+      "subject": "Spell/Go: Storm Peaks related"
     },
-    "database": null,
+    "database": {
+      "commit": "01251672f9b552397fb52e494afcd45919b7f808",
+      "subject": "[5861][ACID] q.13010 'Krolmir, Hammer of Storms'"
+    },
     "playerbots": null
   },
   "characters": {

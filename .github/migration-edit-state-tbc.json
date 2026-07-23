@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "2d9e0e24ae4cfd9ef0ab0921eae1d80eb7d02466",
-      "subject": "Fix Hungarfen mushroom spell bug and behavior (#842)"
+      "commit": "10b579ceb98f6481a2023bf3c0d8b29e5f6274a4",
+      "subject": "Add missing full heal mana spell"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
