@@ -103,7 +103,14 @@ RUN \
     -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
     -DBUILD_AHBOT=ON \
     -DBUILD_EXTRACTORS=ON \
-    -DBUILD_PLAYERBOTS=ON && \
+    -DBUILD_PLAYERBOTS=ON \
+    # The Playerbots module is fetched via CMake `FetchContent` with a floating
+    # `GIT_TAG "master"`. It is already cloned at the pinned revision, copied
+    # into this directory, and patched above, so
+    # `FETCHCONTENT_SOURCE_DIR_PLAYERBOTS` makes `FetchContent` use that tree
+    # verbatim. Without it, `FetchContent` runs a Git checkout that reverts the
+    # patches and could pull a different revision than the pinned one.
+    -DFETCHCONTENT_SOURCE_DIR_PLAYERBOTS=/build/core/src/modules/PlayerBots && \
   cmake --build . -j"$(nproc)" && \
   cmake --install .
 
