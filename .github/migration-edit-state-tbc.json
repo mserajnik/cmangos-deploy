@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "10b579ceb98f6481a2023bf3c0d8b29e5f6274a4",
-      "subject": "Add missing full heal mana spell"
+      "commit": "0b83de892ace04a36f44597914e7085396b2c185",
+      "subject": "[s2491] Add column rename from wotlk work"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
