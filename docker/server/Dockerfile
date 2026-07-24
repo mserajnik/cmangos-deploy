@@ -37,8 +37,7 @@ RUN \
     libcurl4-openssl-dev \
     libicu-dev \
     libmysqlclient-dev \
-    libssl-dev \
-    zlib1g-dev && \
+    libssl-dev && \
   git clone "$CMANGOS_CORE_REPOSITORY_URL" /build/core && \
   git clone "$CMANGOS_PLAYERBOTS_REPOSITORY_URL" /build/playerbots && \
   cd /build/core && \
@@ -141,8 +140,7 @@ RUN \
     libicu78 \
     libmysqlclient24 \
     libssl3t64 \
-    netcat-openbsd \
-    zlib1g && \
+    netcat-openbsd && \
   # The Ubuntu 26.04 LTS Docker image has a user called `ubuntu` with UID 1000
   # and GID 1000 by default. Since we allow configuration of the name, UID and
   # GID of the user and group that should be used in the container, we need to
