@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "0b83de892ace04a36f44597914e7085396b2c185",
-      "subject": "[s2491] Add column rename from wotlk work"
+      "commit": "879e07576a00c9fa527cb459cfd491093abb0cec",
+      "subject": "BT: Make tidal burst ignore resists but not miss"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
