@@ -74,6 +74,7 @@ simplify managing a CMaNGOS setup:
     - [When cmangos-deploy asks you to apply changes manually](#when-cmangos-deploy-asks-you-to-apply-changes-manually)
     - [Breaking changes](#breaking-changes)
   - [Creating database backups](#creating-database-backups)
+    - [Restoring a backup](#restoring-a-backup)
   - [Accessing the database](#accessing-the-database)
   - [Database security](#database-security)
 - [Maintainer](#maintainer)
@@ -514,7 +515,20 @@ just consist of maintenance and potentially new CMaNGOS configuration options
 
 Sometimes, there may be new features or changes that require manual
 intervention. Such breaking changes will be listed here (and removed again once
-they become irrelevant).
+they become irrelevant), sorted by newest first:
+
+- __[2026-07-28] - The suggested database backup solution has changed__: the
+  example Compose configuration now uses
+  [`databack/mysql-backup`](https://github.com/databacker/mysql-backup) instead
+  of `tiredofit/db-backup`, whose repository has moved to a new organization
+  that announced a release for April 2026 which never happened, leaving it
+  unclear whether the project is still maintained. If you have the
+  `database-backup` service enabled, replace it with the
+  [updated service configuration][compose-database-backups]; none of the
+  environment variables carry over. Existing backups stay readable, but the new
+  service neither prunes nor restores them, so move or delete the old `.sql.gz`
+  files once you no longer need them. New backups are written as a single
+  `.tgz` archive per run that contains one `.sql` file per database.
 
 ### Creating database backups
 
@@ -524,6 +538,37 @@ updating.
 To automatically create database backups periodically, uncomment the
 [`database-backup` service configuration][compose-database-backups] in your
 `compose.yaml` and follow the comments for further information.
+
+Once the service is enabled, you can also create a backup on demand by running
+the following (clearing `DB_DUMP_CRON` is necessary because a schedule and a
+one-off run cannot be combined):
+
+```sh
+docker compose run --rm -e DB_DUMP_CRON= -e DB_DUMP_ONCE=true database-backup
+```
+
+#### Restoring a backup
+
+To restore a backup, first stop the `realmd` and `mangosd` services:
+
+```sh
+docker compose stop realmd mangosd
+```
+
+The restore drops and re-creates the tables in the affected databases, which
+would cause read and write errors in the running services and could leave the
+data in an unknown state. Then run the following, replacing the file name with
+the backup you want to restore:
+
+```sh
+docker compose run --rm database-backup restore --target /backup db_backup_<timestamp>.tgz
+```
+
+Finally, start the services again:
+
+```sh
+docker compose start realmd mangosd
+```
 
 ### Accessing the database
 
@@ -598,9 +643,9 @@ non-commercial use only and comes with no warranty.
 [compose-automatic-world-db-corrections]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L34-L46
 [compose-custom-sql]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L60-L77
 [compose-custom-sql-bind-mount]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L16
-[compose-database-backups]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L165-L201
+[compose-database-backups]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L165-L202
 [compose-halt-on-edits]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L47-L59
-[compose-phpmyadmin]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L203-L223
+[compose-phpmyadmin]: https://github.com/mserajnik/cmangos-deploy/blob/master/compose-classic.yaml.example#L204-L224
 [docker]: https://docs.docker.com/get-docker/
 [docker-compose]: https://docs.docker.com/compose/install/
 [image-cmangos-packages]: https://github.com/mserajnik?tab=packages&repo_name=cmangos-deploy
