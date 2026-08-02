@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "879e07576a00c9fa527cb459cfd491093abb0cec",
-      "subject": "BT: Make tidal burst ignore resists but not miss"
+      "commit": "c55d84514fadd5c67d1f4cf1e6b0c6e0e1186afc",
+      "subject": "BT: Add a hack to soul scream to fix rage gain"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
