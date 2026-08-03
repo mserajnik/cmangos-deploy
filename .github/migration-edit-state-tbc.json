@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "c55d84514fadd5c67d1f4cf1e6b0c6e0e1186afc",
-      "subject": "BT: Add a hack to soul scream to fix rage gain"
+      "commit": "57bfc8e87a95d46279411e5b1c6716fff7818efc",
+      "subject": "Item: Add removal safeguard to shattrath flasks"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",

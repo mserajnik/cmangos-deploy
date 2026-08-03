@@ -1,6 +1,9 @@
 {
   "world": {
-    "core": null,
+    "core": {
+      "commit": "101a87e2a6a3068856888e7a573615d8849fb78a",
+      "subject": "[z2836] Rework CLS formulae"
+    },
     "database": {
       "commit": "7505fe3358ba58a9048c671fcb5007e49b3636d9",
       "subject": "[TDB] Update [0689][0688] Remove more Crisp Spider Meat, use cmangos RequiredRaces value for porting"
