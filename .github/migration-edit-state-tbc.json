@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "57bfc8e87a95d46279411e5b1c6716fff7818efc",
-      "subject": "Item: Add removal safeguard to shattrath flasks"
+      "commit": "45fd2be9d1b08a736b3fd0aca0918a116f57c9a8",
+      "subject": "Hyjal: Make anetheron infernal aggro at proper time and in script and make immolate not remove on evade"
     },
     "database": {
       "commit": "efb5a83f861089d341d23b0edbf8b28ec8882245",
