@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "653334975dc0924e2ab80986ffd3e081c8ccb3f5",
-      "subject": "Spell/Go: Storm Peaks related"
+      "commit": "dc31a0c81834b997f91d7305429377ca6f2a03bc",
+      "subject": "[14102] Rework CLS formulae"
     },
     "database": {
       "commit": "6ccbfe741c665c3c891bd7574740c36b8a054ee9",
