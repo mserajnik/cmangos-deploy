@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "dc31a0c81834b997f91d7305429377ca6f2a03bc",
-      "subject": "[14102] Rework CLS formulae"
+      "commit": "cd3df4d8878df7af663bc8fd039d649f403de604",
+      "subject": "Fix merge error in [Karazhan] modernize Terestian illhoof script"
     },
     "database": {
-      "commit": "6ccbfe741c665c3c891bd7574740c36b8a054ee9",
-      "subject": "Update [5857][ACID] q.13011 'Jormuttar is Soo Fat...'"
+      "commit": "bd370825ef3c53eb8ae6eca18101824e7401f169",
+      "subject": "[5863][ACID] q.11471 'The Jig is Up' - Update"
     },
     "playerbots": null
   },
