@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "cd3df4d8878df7af663bc8fd039d649f403de604",
-      "subject": "Fix merge error in [Karazhan] modernize Terestian illhoof script"
+      "commit": "8044df59a82520f13fb43dfc929fa2a2ae9a08ae",
+      "subject": "Hyjal: Make anetheron infernal aggro at proper time and in script and make immolate not remove on evade"
     },
     "database": {
       "commit": "bd370825ef3c53eb8ae6eca18101824e7401f169",
