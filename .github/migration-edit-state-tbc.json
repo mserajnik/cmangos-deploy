@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "45fd2be9d1b08a736b3fd0aca0918a116f57c9a8",
-      "subject": "Hyjal: Make anetheron infernal aggro at proper time and in script and make immolate not remove on evade"
+      "commit": "7122d8477f5e7072b3b6fe00dc175879f7a02513",
+      "subject": "[s2492] Chat: Fix gobject near crash and finish dyngo link backport"
     },
     "database": {
       "commit": "13b1403e2984a17c41ca0e9b32634880469f0ef6",

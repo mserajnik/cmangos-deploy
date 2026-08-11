@@ -5,8 +5,8 @@
       "subject": "Hyjal: Make anetheron infernal aggro at proper time and in script and make immolate not remove on evade"
     },
     "database": {
-      "commit": "bd370825ef3c53eb8ae6eca18101824e7401f169",
-      "subject": "[5863][ACID] q.11471 'The Jig is Up' - Update"
+      "commit": "7d3ffab46ed8805678355fbdf77ccfaafb30c2ab",
+      "subject": "build fix"
     },
     "playerbots": null
   },

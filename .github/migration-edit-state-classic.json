@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "7ad1d865646ee20ea81e6a49478cc54383061c91",
-      "subject": "Fix db build due to mistake in process"
+      "commit": "7f98ba0f0b7b74b93c01741c7bd64ec457b427ee",
+      "subject": "[z2837] Chat: Fix gobject near crash and finish dyngo link backport"
     },
     "database": {
       "commit": "7505fe3358ba58a9048c671fcb5007e49b3636d9",
