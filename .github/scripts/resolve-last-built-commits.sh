@@ -42,6 +42,9 @@ read_last_built() {
   local tmp_output
 
   tmp_output="$(mktemp)"
+  # This function runs in a command substitution, where `set -e` does not
+  # reach, so a failed lookup would leave an empty commit hash and read as a
+  # successful step.
   # shellcheck disable=SC2153
   GH_TOKEN="$GH_TOKEN" \
     PACKAGE_OWNER="$PACKAGE_OWNER" \
@@ -51,7 +54,7 @@ read_last_built() {
     SOURCE_REPOSITORY_NAME="$source_name" \
     CUTOFF_COMMIT_HASH="$cutoff" \
     GITHUB_OUTPUT="$tmp_output" \
-    "$script_dir/read-last-built-commit.sh" >&2
+    "$script_dir/read-last-built-commit.sh" >&2 || return 1
 
   sed -n 's/^commit_hash=//p' "$tmp_output"
   rm -f "$tmp_output"

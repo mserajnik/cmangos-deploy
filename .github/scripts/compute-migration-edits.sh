@@ -4,8 +4,11 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Walks the commits between the previous and current build for one expansion
-# via the GitHub API and updates that expansion's migration edit state file
-# with the most recent migration file edit per `(db, source)` pair.
+# and updates that expansion's migration edit state file with the most recent
+# migration file edit per `(db, source)` pair.
+#
+# The walk reads a blobless clone rather than the GitHub API, whose commit
+# endpoint silently caps a file list and could hide a watched file.
 
 set -euo pipefail
 
@@ -13,7 +16,6 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source-path=SCRIPTDIR
 source "$script_dir/helpers.sh"
 
-require_env GH_TOKEN
 require_env STATE_FILE
 require_env EXPANSION
 require_env CORE_REPOSITORY_OWNER
@@ -36,8 +38,15 @@ case "$EXPANSION" in
     ;;
 esac
 
-if [[ ! -f "$STATE_FILE" ]]; then
-  fail "State file '$STATE_FILE' does not exist."
+# A state file `jq` cannot read as an object would make the writeback's
+# comparison read as "already up to date" and silently drop an edit a walk just
+# found.
+if ! jq -e '
+  type == "object"
+  and all(.. | objects | select(has("commit")) | .commit;
+          type == "string" and length == 40 and test("^[0-9a-f]{40}$"))
+' "$STATE_FILE" >/dev/null; then
+  fail "State file '$STATE_FILE' is missing, is not a JSON object, or holds a malformed commit hash."
 fi
 
 # Parallel indexed arrays describe the seven walks. macOS Bash 3.2 has no
@@ -52,6 +61,9 @@ fi
 # - `walk_bases[i]`: the previous build's commit hash in that source repo
 # - `walk_heads[i]`: the current build's commit hash in that source repo
 # - `walk_patterns[i]`: a `|`-separated list of file-path regexes to match
+#
+# The backslashes in the patterns are doubled because `awk -v` processes escape
+# sequences in the value.
 walk_dbs=(world world world characters characters realmd logs)
 walk_sources=(core database playerbots core playerbots core core)
 walk_owners=(
@@ -91,19 +103,23 @@ walk_heads=(
   "$CORE_CURRENT_COMMIT_HASH"
 )
 walk_patterns=(
-  '^sql/base/mangos\.sql$|^sql/updates/mangos/[^/]+\.sql$|^sql/base/ahbot/[^/]+\.sql$|^sql/base/dbc/original_data/[^/]+\.sql$|^sql/base/dbc/cmangos_fixes/[^/]+\.sql$|^sql/scriptdev2/[^/]+\.sql$'
-  '^Full_DB/[^/]+\.sql(\.gz)?$|^Updates/[^/]+\.sql$|^Updates/Instances/[^/]+\.sql$|^ACID/acid_'"$EXPANSION"'\.sql$|^utilities/cmangos_custom\.sql$|^locales/[^/]+\.sql$'
-  '^sql/world/[^/]+\.sql$|^sql/world/'"$EXPANSION"'/[^/]+\.sql$'
-  '^sql/base/characters\.sql$|^sql/updates/characters/[^/]+\.sql$'
-  '^sql/characters/[^/]+\.sql$'
-  '^sql/base/realmd\.sql$|^sql/updates/realmd/[^/]+\.sql$'
-  '^sql/base/logs\.sql$|^sql/updates/logs/[^/]+\.sql$'
+  '^sql/base/mangos\\.sql$|^sql/updates/mangos/[^/]+\\.sql$|^sql/base/ahbot/[^/]+\\.sql$|^sql/base/dbc/original_data/[^/]+\\.sql$|^sql/base/dbc/cmangos_fixes/[^/]+\\.sql$|^sql/scriptdev2/[^/]+\\.sql$'
+  '^Full_DB/[^/]+\\.sql(\\.gz)?$|^Updates/[^/]+\\.sql$|^Updates/Instances/[^/]+\\.sql$|^ACID/acid_'"$EXPANSION"'\\.sql$|^utilities/cmangos_custom\\.sql$|^locales/[^/]+\\.sql$'
+  '^sql/world/[^/]+\\.sql$|^sql/world/'"$EXPANSION"'/[^/]+\\.sql$'
+  '^sql/base/characters\\.sql$|^sql/updates/characters/[^/]+\\.sql$'
+  '^sql/characters/[^/]+\\.sql$'
+  '^sql/base/realmd\\.sql$|^sql/updates/realmd/[^/]+\\.sql$'
+  '^sql/base/logs\\.sql$|^sql/updates/logs/[^/]+\\.sql$'
 )
 
 # Outputs filled by the walks below: same shape as the input arrays so an entry
 # at index `i` corresponds to the `(walk_dbs[i], walk_sources[i])` pair.
 found_commits=("" "" "" "" "" "" "")
 found_subjects=("" "" "" "" "" "" "")
+
+# Several walks cover the same repository, so clones are reused across them.
+clone_root="$(mktemp -d)"
+trap 'rm -rf "$clone_root"' EXIT
 
 walk_one() {
   local idx="$1"
@@ -124,56 +140,76 @@ walk_one() {
 
   echo "[$db.$source] Scanning '$repo' between $base and $head..."
 
-  local commit_hashes_oldest_first
-  commit_hashes_oldest_first="$(gh api --paginate \
-    "repos/$repo/compare/$base...$head" \
-    --jq '.commits[].sha')"
+  local clone_dir="$clone_root/${repo//\//__}"
+  if [[ ! -d "$clone_dir" ]]; then
+    # Blobless so each clone carries commits and trees but no file contents,
+    # which is all `git diff-tree` needs to report paths and statuses.
+    git clone --filter=blob:none --no-checkout --quiet \
+      "https://github.com/$repo.git" "$clone_dir"
+  fi
 
-  if [[ -z "$commit_hashes_oldest_first" ]]; then
+  # Merge commits are excluded because their diff against the first parent
+  # would attribute the merged branch's file changes to the merge commit
+  # itself, which would give us the wrong commit hash and subject.
+  local commit_hashes_newest_first
+  commit_hashes_newest_first="$(git -C "$clone_dir" rev-list --no-merges --topo-order \
+    "$base..$head")"
+
+  if [[ -z "$commit_hashes_newest_first" ]]; then
     echo "[$db.$source] No commits between $base and $head."
     return 0
   fi
 
-  local commit_hashes_newest_first
-  commit_hashes_newest_first="$(tac <<<"$commit_hashes_oldest_first")"
   local total
-  total="$(wc -l <<<"$commit_hashes_newest_first" | tr -d ' ')"
+  total="$(wc -l <<<"$commit_hashes_newest_first")"
   echo "[$db.$source] Walking $total commits newest-first."
 
   local scanned=0
   local commit_hash
-  # Each iteration makes one `gh api ...commits/<commit_hash>` call. The 5000
-  # calls per hour `GITHUB_TOKEN` rate limit bounds the worst case (~14 months
-  # of history from the cutoff anchor on a fresh fork's first build).
   while IFS= read -r commit_hash; do
     [[ -z "$commit_hash" ]] && continue
     scanned=$((scanned + 1))
 
-    local commit_data
-    commit_data="$(gh api "repos/$repo/commits/$commit_hash")"
-
-    # We skip merge commits because their diff against the first parent would
-    # attribute the merged branch's file changes to the merge commit itself,
-    # which would give us the wrong timestamp and subject.
-    local parent_count
-    parent_count="$(jq -r '.parents | length' <<<"$commit_data")"
-    if [[ "$parent_count" -ne 1 ]]; then
-      continue
-    fi
-
-    local files_json
-    files_json="$(jq -c '.files' <<<"$commit_data")"
-    local subject
-    subject="$(jq -r '.commit.message | split("\n")[0]' <<<"$commit_data")"
+    # `core.quotePath` defaults to true, which wraps a path holding a non-ASCII
+    # byte in quotes and escapes it, and no watched pattern matches such a
+    # value.
+    #
+    # Rename detection is limited to exact matches because the similarity
+    # scoring `-M` performs otherwise reads file contents, which a blobless
+    # clone has to fetch one commit at a time. A rename reports both its old
+    # and its new path, and the checks below test both, so a watched file
+    # renamed away still counts.
+    #
+    # A parentless commit reports nothing at all without `--root`, so an
+    # unrelated history grafted into the window would pass as touching no
+    # watched file. The flag changes nothing for every other commit.
+    local changed_files
+    changed_files="$(git -C "$clone_dir" -c core.quotePath=false diff-tree \
+      --no-commit-id --name-status --root -r -M100% "$commit_hash")"
 
     local has_edit
-    has_edit="$(jq -r --arg pattern "$pattern" '
-      [.[]
-        | select(.status == "modified" or .status == "renamed" or .status == "removed")
-        | select((.filename | test($pattern)) or ((.previous_filename // "") | test($pattern)))
-      ] | length' <<<"$files_json")"
+    has_edit="$(awk -F'\t' -v pattern="$pattern" '
+      {
+        status = substr($1, 1, 1)
 
-    if [[ "$has_edit" -gt 0 ]]; then
+        if (status == "R") {
+          previous_path = $2
+          path = $3
+        } else {
+          previous_path = ""
+          path = $2
+        }
+
+        if (status ~ /^[MRDT]$/ && ((path ~ pattern) ||
+          (previous_path != "" && previous_path ~ pattern))) {
+          found = 1
+        }
+      }
+      END { if (found) print "1" }' <<<"$changed_files")"
+
+    if [[ "$has_edit" == "1" ]]; then
+      local subject
+      subject="$(git -C "$clone_dir" log -1 --format=%s "$commit_hash")"
       found_commits[idx]="$commit_hash"
       found_subjects[idx]="$subject"
       echo "[$db.$source] $commit_hash ($subject)"

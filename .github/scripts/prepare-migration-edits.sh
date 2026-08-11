@@ -13,7 +13,6 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source-path=SCRIPTDIR
 source "$script_dir/helpers.sh"
 
-require_env GH_TOKEN
 require_env BUILD_METADATA
 require_env LAST_BUILT_COMMITS
 require_env CORE_REPOSITORY_OWNER
@@ -50,8 +49,7 @@ for expansion in classic tbc wotlk; do
   playerbots_last_built="$(jq -r --arg e "$expansion" '.[$e].playerbots' <<<"$LAST_BUILT_COMMITS")"
 
   echo "Computing migration edits for '$expansion'..."
-  GH_TOKEN="$GH_TOKEN" \
-    STATE_FILE="$state_file" \
+  STATE_FILE="$state_file" \
     EXPANSION="$expansion" \
     CORE_REPOSITORY_OWNER="$CORE_REPOSITORY_OWNER" \
     CORE_REPOSITORY_NAME="$core_name" \

@@ -34,11 +34,25 @@ clear_change_sentinels() {
 
 database_exists() {
   local db_name="$1"
+  local result
+  local status
 
-  mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
+  set +e
+  result="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
     "SELECT SCHEMA_NAME \
      FROM SCHEMATA \
-     WHERE SCHEMA_NAME = '$(sql_escape "$db_name")';" | grep -Fxq "$db_name"
+     WHERE SCHEMA_NAME = '$(sql_escape "$db_name")';")"
+  status=$?
+  set -e
+
+  # This runs as an `if` condition, which suppresses `set -e` for the whole
+  # body, so the query status has to be checked by hand. Without it a failed
+  # query reads as a negative result.
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the database list."
+  fi
+
+  grep -Fxq "$db_name" <<<"$result"
 }
 
 create_database() {
@@ -126,15 +140,29 @@ tracked_sql_applied() {
   local sql_key="$2"
   local table_name
   local escaped_key
+  local result
+  local status
 
   table_name="$(tracking_table_name)"
   escaped_key="$(sql_escape "$sql_key")"
 
-  mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name" -N -s -e \
+  set +e
+  result="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name" -N -s -e \
     "SELECT 1 \
      FROM \`$table_name\` \
      WHERE \`sql_key\` = '$escaped_key' \
-     LIMIT 1;" | grep -Fxq "1"
+     LIMIT 1;")"
+  status=$?
+  set -e
+
+  # This runs as an `if` condition, which suppresses `set -e` for the whole
+  # body, so the query status has to be checked by hand. Without it a failed
+  # query reads as a negative result.
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the SQL tracking table for database '$db_name'."
+  fi
+
+  grep -Fxq "1" <<<"$result"
 }
 
 mark_tracked_sql_applied() {
@@ -180,34 +208,39 @@ apply_tracked_sql_dir() {
   local key_prefix="$3"
   local recursive="${4:-false}"
   local sql_file
+  local sql_files
+  local status
 
   if [[ ! -d "$dir" ]]; then
     return 0
   fi
 
+  # Collect the listing before the loop rather than substituting it into the
+  # heredoc, where a failed `find` is indistinguishable from an empty directory
+  # and every file would be skipped while the run reports success.
+  set +e
   if [[ "$recursive" = true ]]; then
-    while read -r sql_file; do
-      [[ -n "$sql_file" ]] || continue
-
-      apply_tracked_sql_file \
-        "$db_name" \
-        "$sql_file" \
-        "$key_prefix/$(basename "$sql_file")"
-    done <<EOF
-$(find "$dir" -type f -name '*.sql' | sort)
-EOF
+    sql_files="$(find "$dir" -type f -name '*.sql')"
   else
-    while read -r sql_file; do
-      [[ -n "$sql_file" ]] || continue
-
-      apply_tracked_sql_file \
-        "$db_name" \
-        "$sql_file" \
-        "$key_prefix/$(basename "$sql_file")"
-    done <<EOF
-$(find "$dir" -maxdepth 1 -type f -name '*.sql' | sort)
-EOF
+    sql_files="$(find "$dir" -maxdepth 1 -type f -name '*.sql')"
   fi
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to list SQL files in '$dir'."
+  fi
+
+  sql_files="$(sort <<<"$sql_files")"
+
+  while read -r sql_file; do
+    [[ -n "$sql_file" ]] || continue
+
+    apply_tracked_sql_file \
+      "$db_name" \
+      "$sql_file" \
+      "$key_prefix/$(basename "$sql_file")"
+  done <<<"$sql_files"
 }
 
 required_version_table_name() {
@@ -237,9 +270,13 @@ get_current_required_version() {
   local db_kind="$2"
   local table_name
   local current_version
+  local status
 
-  table_name="$(required_version_table_name "$db_kind")"
+  # `cmangos_fail` inside the substitution exits only that subshell, so the
+  # status has to be forwarded by hand.
+  table_name="$(required_version_table_name "$db_kind")" || return 1
 
+  set +e
   current_version="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
     "SELECT COLUMN_NAME \
      FROM COLUMNS \
@@ -248,6 +285,15 @@ get_current_required_version() {
        AND COLUMN_NAME LIKE 'required\\_%\\_${db_kind}\\_%' \
      ORDER BY ORDINAL_POSITION DESC \
      LIMIT 1;")"
+  status=$?
+  set -e
+
+  # This runs inside a command substitution, which does not inherit `set -e`,
+  # so the query status has to be checked by hand. Without it a failed query
+  # reads as "no version recorded" and every update is applied again.
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the required version for database '$db_name'."
+  fi
 
   printf '%s' "${current_version#required_}"
 }
@@ -283,12 +329,27 @@ apply_versioned_updates() {
   local current_rev
   local applied_count=0
   local update_file
+  local update_files
   local update_name
   local update_rev
+  local status
 
   if [[ ! -d "$update_dir" ]]; then
     return 0
   fi
+
+  # See `apply_tracked_sql_dir`: a failed `find` must not read as an empty
+  # update directory.
+  set +e
+  update_files="$(find "$update_dir" -maxdepth 1 -type f -name '*.sql')"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to list versioned updates in '$update_dir'."
+  fi
+
+  update_files="$(sort <<<"$update_files")"
 
   current_version="$(get_current_required_version "$db_name" "$db_kind")"
 
@@ -311,9 +372,7 @@ apply_versioned_updates() {
       import_sql_file "$db_name" "$update_file"
       applied_count=$((applied_count + 1))
     fi
-  done <<EOF
-$(find "$update_dir" -maxdepth 1 -type f -name '*.sql' | sort)
-EOF
+  done <<<"$update_files"
 
   if [[ "$applied_count" -eq 0 ]]; then
     cmangos_log "No new versioned updates found for database '$db_name'."
@@ -321,21 +380,48 @@ EOF
 }
 
 get_full_world_dump_file() {
-  find /sql/database/Full_DB -maxdepth 1 -type f \( -name '*.sql' -o -name '*.sql.gz' \) | sort | tail -n 1
+  local dumps
+  local status
+
+  set +e
+  dumps="$(find /sql/database/Full_DB -maxdepth 1 -type f \
+    \( -name '*.sql' -o -name '*.sql.gz' \))"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to list full world dumps in '/sql/database/Full_DB'."
+  fi
+
+  sort <<<"$dumps" | tail -n 1
 }
 
 set_latest_content_version_marker() {
   local db_name="$1"
   local latest_update=""
   local existing_columns
+  local marker_column
+  local updates
+  local status
 
-  latest_update="$(find /sql/database/Updates -maxdepth 1 -type f -name '[0-9]*.sql' | sort | tail -n 1)"
+  set +e
+  updates="$(find /sql/database/Updates -maxdepth 1 -type f -name '[0-9]*.sql')"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to list content updates in '/sql/database/Updates'."
+  fi
+
+  latest_update="$(sort <<<"$updates" | tail -n 1)"
 
   if [[ -z "$latest_update" ]]; then
     return 0
   fi
 
   latest_update="$(basename "$latest_update" .sql)"
+
+  set +e
   existing_columns="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
     "SELECT COLUMN_NAME \
      FROM COLUMNS \
@@ -343,6 +429,12 @@ set_latest_content_version_marker() {
        AND TABLE_NAME = 'db_version' \
        AND COLUMN_NAME LIKE 'content\\_%' \
      ORDER BY ORDINAL_POSITION;")"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the content version columns for database '$db_name'."
+  fi
 
   if [[ -n "$existing_columns" ]]; then
     printf '%s\n' "$existing_columns" | while read -r column_name; do
@@ -355,12 +447,25 @@ set_latest_content_version_marker() {
     done
   fi
 
-  if ! mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
+  # Capture the query on its own rather than inside the `if` below, which
+  # suppresses `set -e` and would take `grep`'s status, so a failed query would
+  # read as a missing column and the `ALTER TABLE` would run on a wrong
+  # premise.
+  set +e
+  marker_column="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
     "SELECT 1 \
      FROM COLUMNS \
      WHERE TABLE_SCHEMA = '$(sql_escape "$db_name")' \
        AND TABLE_NAME = 'db_version' \
-       AND COLUMN_NAME = 'content_$latest_update';" | grep -Fxq "1"; then
+       AND COLUMN_NAME = 'content_$latest_update';")"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the content version marker column for database '$db_name'."
+  fi
+
+  if ! grep -Fxq "1" <<<"$marker_column"; then
     mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "$db_name" -e \
       "ALTER TABLE db_version ADD COLUMN \`content_$latest_update\` bit DEFAULT NULL;"
   fi
@@ -393,11 +498,13 @@ apply_world_content_updates() {
 fix_tbc_locales_gameobject() {
   local world_db="$1"
   local has_old_column
+  local status
 
   if [[ "$CMANGOS_EXPANSION" != "tbc" ]]; then
     return 0
   fi
 
+  set +e
   has_old_column="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" information_schema -N -s -e \
     "SELECT 1 \
      FROM COLUMNS \
@@ -405,6 +512,12 @@ fix_tbc_locales_gameobject() {
        AND TABLE_NAME = 'locales_gameobject' \
        AND COLUMN_NAME = 'castbarcaption_loc1' \
      LIMIT 1;")"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the locales column list for database '$world_db'."
+  fi
 
   if [[ -z "$has_old_column" ]]; then
     return 0
@@ -506,11 +619,22 @@ correction_acknowledged() {
   local db_name="$1"
   local commit_hash="$2"
   local count
+  local status
 
+  set +e
   count="$(mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "maintenance" -N -s -e \
     "SELECT COUNT(*) FROM \`migration_corrections\` \
     WHERE \`db_name\` = '$(sql_escape "$db_name")' \
     AND \`commit_hash\` = '$(sql_escape "$commit_hash")';")"
+  status=$?
+  set -e
+
+  # This runs as an `if` condition, which suppresses `set -e` for the whole
+  # body, so the query status has to be checked by hand. Without it a failed
+  # query leaves `count` empty, which reads as a negative result.
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to read the migration correction ledger for database '$db_name'."
+  fi
 
   [[ "$count" -gt 0 ]]
 }
@@ -847,7 +971,10 @@ wait_for_change_ack() {
 
 process_custom_sql() {
   local file_directory="$1"
-  local file_count
+  local sql_file
+  local sql_files=()
+  local sql_files_raw
+  local status
 
   if [[ ! -d "$file_directory" ]]; then
     cmangos_log "WARNING: Custom SQL file directory '$file_directory' does not exist." >&2
@@ -858,16 +985,27 @@ process_custom_sql() {
     cmangos_fail "Custom SQL file directory '$file_directory' is not readable by the database user (UID $(id -u)). This is a permission problem on the host: the bind-mounted directory must be readable by that user. Adjust the permissions, then restart."
   fi
 
-  file_count=$(find "$file_directory" -name "*.sql" -type f | wc -l)
-  cmangos_log "Found $file_count custom SQL file(s) to process."
+  # Collect the listing before the loop rather than piping into it, where a
+  # failed `find` would abort with nothing said about which step failed.
+  set +e
+  sql_files_raw="$(find "$file_directory" -type f -name '*.sql')"
+  status=$?
+  set -e
 
-  if [[ "$file_count" -gt 0 ]]; then
-    find "$file_directory" -name "*.sql" -type f | sort | while read -r sql_file; do
-      cmangos_log "Processing custom SQL file '$(basename "$sql_file")'..."
-
-      if ! import_sql_file "mangos" "$sql_file"; then
-        cmangos_log "ERROR: Failed to process custom SQL file '$(basename "$sql_file")'." >&2
-      fi
-    done
+  if [[ $status -ne 0 ]]; then
+    cmangos_fail "Failed to list custom SQL files in '$file_directory'."
   fi
+
+  sql_files_raw="$(sort <<<"$sql_files_raw")"
+  mapfile -t sql_files < <(printf '%s' "$sql_files_raw")
+
+  cmangos_log "Found ${#sql_files[@]} custom SQL file(s) to process."
+
+  for sql_file in "${sql_files[@]}"; do
+    cmangos_log "Processing custom SQL file '$(basename "$sql_file")'..."
+
+    if ! import_sql_file "mangos" "$sql_file"; then
+      cmangos_log "ERROR: Failed to process custom SQL file '$(basename "$sql_file")'." >&2
+    fi
+  done
 }

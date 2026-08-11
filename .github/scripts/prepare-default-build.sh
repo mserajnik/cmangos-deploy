@@ -53,13 +53,11 @@ declare -A database_repository_name=(
   [tbc]=tbc-db
   [wotlk]=wotlk-db
 )
-# shellcheck disable=SC2153
 declare -A core_commit_hash_by_expansion=(
   [classic]="$(trim "$CMANGOS_CLASSIC_COMMIT_HASH")"
   [tbc]="$(trim "$CMANGOS_TBC_COMMIT_HASH")"
   [wotlk]="$(trim "$CMANGOS_WOTLK_COMMIT_HASH")"
 )
-# shellcheck disable=SC2153
 declare -A database_commit_hash_by_expansion=(
   [classic]="$(trim "$CLASSIC_DB_COMMIT_HASH")"
   [tbc]="$(trim "$TBC_DB_COMMIT_HASH")"

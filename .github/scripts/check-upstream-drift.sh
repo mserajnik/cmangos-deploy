@@ -50,7 +50,6 @@ if [[ -n "${CMANGOS_CLASSIC_REPOSITORY:-}${CMANGOS_CLASSIC_LATEST_COMMIT_HASH:-}
   require_env CMANGOS_CLASSIC_LATEST_COMMIT_HASH
   require_env CMANGOS_CLASSIC_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   cmangos_classic_latest_commit_hash="$(trim "$CMANGOS_CLASSIC_LATEST_COMMIT_HASH")"
 
   for path in "${per_expansion_paths[@]}"; do
@@ -70,7 +69,6 @@ if [[ -n "${CMANGOS_TBC_REPOSITORY:-}${CMANGOS_TBC_LATEST_COMMIT_HASH:-}${CMANGO
   require_env CMANGOS_TBC_LATEST_COMMIT_HASH
   require_env CMANGOS_TBC_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   cmangos_tbc_latest_commit_hash="$(trim "$CMANGOS_TBC_LATEST_COMMIT_HASH")"
 
   for path in "${per_expansion_paths[@]}"; do
@@ -84,7 +82,6 @@ if [[ -n "${CMANGOS_WOTLK_REPOSITORY:-}${CMANGOS_WOTLK_LATEST_COMMIT_HASH:-}${CM
   require_env CMANGOS_WOTLK_LATEST_COMMIT_HASH
   require_env CMANGOS_WOTLK_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   cmangos_wotlk_latest_commit_hash="$(trim "$CMANGOS_WOTLK_LATEST_COMMIT_HASH")"
 
   for path in "${per_expansion_paths[@]}"; do
@@ -101,7 +98,6 @@ if [[ -n "${CLASSIC_DB_REPOSITORY:-}${CLASSIC_DB_LATEST_COMMIT_HASH:-}${CLASSIC_
   require_env CLASSIC_DB_LATEST_COMMIT_HASH
   require_env CLASSIC_DB_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   classic_db_latest_commit_hash="$(trim "$CLASSIC_DB_LATEST_COMMIT_HASH")"
 
   add_github_check "$CLASSIC_DB_REPOSITORY" \
@@ -113,7 +109,6 @@ if [[ -n "${TBC_DB_REPOSITORY:-}${TBC_DB_LATEST_COMMIT_HASH:-}${TBC_DB_KNOWN_COM
   require_env TBC_DB_LATEST_COMMIT_HASH
   require_env TBC_DB_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   tbc_db_latest_commit_hash="$(trim "$TBC_DB_LATEST_COMMIT_HASH")"
 
   add_github_check "$TBC_DB_REPOSITORY" \
@@ -125,7 +120,6 @@ if [[ -n "${WOTLK_DB_REPOSITORY:-}${WOTLK_DB_LATEST_COMMIT_HASH:-}${WOTLK_DB_KNO
   require_env WOTLK_DB_LATEST_COMMIT_HASH
   require_env WOTLK_DB_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   wotlk_db_latest_commit_hash="$(trim "$WOTLK_DB_LATEST_COMMIT_HASH")"
 
   add_github_check "$WOTLK_DB_REPOSITORY" \
@@ -137,7 +131,6 @@ if [[ -n "${PLAYERBOTS_REPOSITORY:-}${PLAYERBOTS_LATEST_COMMIT_HASH:-}${PLAYERBO
   require_env PLAYERBOTS_LATEST_COMMIT_HASH
   require_env PLAYERBOTS_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   playerbots_latest_commit_hash="$(trim "$PLAYERBOTS_LATEST_COMMIT_HASH")"
 
   # Playerbots ships an expansion-specific suffix on the same template name.
@@ -157,7 +150,6 @@ if [[ -n "${MARIADB_DOCKER_REPOSITORY:-}${MARIADB_DOCKER_LATEST_COMMIT_HASH:-}${
   require_env MARIADB_DOCKER_LATEST_COMMIT_HASH
   require_env MARIADB_DOCKER_KNOWN_COMMIT_HASH
 
-  # shellcheck disable=SC2153
   mariadb_docker_latest_commit_hash="$(trim "$MARIADB_DOCKER_LATEST_COMMIT_HASH")"
 
   # Patched MariaDB entrypoint. Our `docker/database/docker-entrypoint.sh`

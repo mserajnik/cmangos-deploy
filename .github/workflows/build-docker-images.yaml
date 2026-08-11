@@ -162,7 +162,6 @@ jobs:
         id: prepare-migration-edits
         if: ${{ steps.prepare-default-build.outputs.any_images_to_build == 'true' }}
         env:
-          GH_TOKEN: ${{ github.token }}
           BUILD_METADATA: ${{ steps.prepare-default-build.outputs.build_metadata }}
           LAST_BUILT_COMMITS: ${{ steps.read-last-built-commits.outputs.last_built_commits }}
           CORE_REPOSITORY_OWNER: cmangos
