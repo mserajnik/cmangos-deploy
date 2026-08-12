@@ -140,7 +140,8 @@ RUN \
     libicu78 \
     libmysqlclient24 \
     libssl3t64 \
-    netcat-openbsd && \
+    netcat-openbsd \
+    tzdata && \
   # The Ubuntu 26.04 LTS Docker image has a user called `ubuntu` with UID 1000
   # and GID 1000 by default. Since we allow configuration of the name, UID and
   # GID of the user and group that should be used in the container, we need to
