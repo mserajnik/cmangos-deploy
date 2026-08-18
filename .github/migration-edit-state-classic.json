@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "7f98ba0f0b7b74b93c01741c7bd64ec457b427ee",
-      "subject": "[z2837] Chat: Fix gobject near crash and finish dyngo link backport"
+      "commit": "c7066dbd2feb30183c77b33828709b18d88cc772",
+      "subject": "Spell: Add SpellScript to Fire Blossom spell to target random enemies"
     },
     "database": {
       "commit": "7505fe3358ba58a9048c671fcb5007e49b3636d9",

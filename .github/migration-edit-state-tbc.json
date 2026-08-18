@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "7122d8477f5e7072b3b6fe00dc175879f7a02513",
-      "subject": "[s2492] Chat: Fix gobject near crash and finish dyngo link backport"
+      "commit": "ac6a8950884e9143f2c4bb99eb3d6301ea06a0e9",
+      "subject": "Prevent Winter's Chill from stacking separately (#849)"
     },
     "database": {
-      "commit": "c972214b37980388ad602700e76b4136fa9ae940",
-      "subject": "[ACID] Dustwallow Marsh - Grimtotem - tbc+"
+      "commit": "df99d04a1c5545c837a1a6012454d4ad04208085",
+      "subject": "[ACID] Moonstalker Runt 2070 - Flee at 15% HP"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
