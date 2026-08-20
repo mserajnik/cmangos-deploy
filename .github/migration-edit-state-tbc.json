@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "9bb2497664f4e32ad13330062a89fa6c23e93260",
-      "subject": "[Spell] Correct Spell Bonus Data for Earth Shield (#830)"
+      "commit": "1d6db40d8477c4b768a38bc40f23add47caed300",
+      "subject": "OHF: Resolve loose ends with previous PR (#859)"
     },
     "database": {
       "commit": "179f669a3d01e5f83dd5d25676135b3102a92410",
