@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "ac6a8950884e9143f2c4bb99eb3d6301ea06a0e9",
-      "subject": "Prevent Winter's Chill from stacking separately (#849)"
+      "commit": "9bb2497664f4e32ad13330062a89fa6c23e93260",
+      "subject": "[Spell] Correct Spell Bonus Data for Earth Shield (#830)"
     },
     "database": {
-      "commit": "df99d04a1c5545c837a1a6012454d4ad04208085",
-      "subject": "[ACID] Moonstalker Runt 2070 - Flee at 15% HP"
+      "commit": "179f669a3d01e5f83dd5d25676135b3102a92410",
+      "subject": "[ACID] Reduce Flee %HP for some Hillsbrad Foothills npcs"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
