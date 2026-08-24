@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "208166dbc3b1b4f55302aaef422e23d87bb2264e",
-      "subject": "[Molten Core] Implement Core Hound (11671) collapse/reignite."
+      "commit": "140802b5409bfdaff9c7aad2bd9812d31ba9781a",
+      "subject": "Make wlock t5 4p bonus not stack per caster"
     },
     "database": {
       "commit": "355e7f929f08c59f076cea223d2e9e4aa24485d0",
