@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "8044df59a82520f13fb43dfc929fa2a2ae9a08ae",
-      "subject": "Hyjal: Make anetheron infernal aggro at proper time and in script and make immolate not remove on evade"
+      "commit": "71e55b33f4ab6616033a848e57939c30aa627774",
+      "subject": "Ulduar: Convert Iron Council to BossAI and Spell Lists Closes https://github.com/cmangos/mangos-wotlk/pull/431"
     },
     "database": {
       "commit": "7d3ffab46ed8805678355fbdf77ccfaafb30c2ab",

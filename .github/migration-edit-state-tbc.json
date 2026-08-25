@@ -5,8 +5,8 @@
       "subject": "Make wlock t5 4p bonus not stack per caster"
     },
     "database": {
-      "commit": "355e7f929f08c59f076cea223d2e9e4aa24485d0",
-      "subject": "[ACID] Add Cast Darkfury 39152 on Spawn & Another combat text"
+      "commit": "0e5f241bbdd1439b42a0c81282e46405f4eba6c8",
+      "subject": "[ACID] Correct Enrage for Bog Giant 17723 & Underbog Lord 17734"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
