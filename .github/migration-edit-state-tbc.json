@@ -5,8 +5,8 @@
       "subject": "Make wlock t5 4p bonus not stack per caster"
     },
     "database": {
-      "commit": "0e5f241bbdd1439b42a0c81282e46405f4eba6c8",
-      "subject": "[ACID] Correct Enrage for Bog Giant 17723 & Underbog Lord 17734"
+      "commit": "fd0126b1b36319ba1ed9df4f808d2842e1ab3b73",
+      "subject": "[Instance] SHH: Extend creature_movement_template DELETE Query"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
