@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "71e55b33f4ab6616033a848e57939c30aa627774",
-      "subject": "Ulduar: Convert Iron Council to BossAI and Spell Lists Closes https://github.com/cmangos/mangos-wotlk/pull/431"
+      "commit": "1336d500e6ff59edb5ca1a53b2d21eaf84a28e5e",
+      "subject": "ICC: Add Festergut spell script bindings"
     },
     "database": {
-      "commit": "7d3ffab46ed8805678355fbdf77ccfaafb30c2ab",
-      "subject": "build fix"
+      "commit": "427abf1df8c7675206d9005c8a263091419b1dfc",
+      "subject": "[ACID] Timmy the Cruel 10808"
     },
     "playerbots": null
   },

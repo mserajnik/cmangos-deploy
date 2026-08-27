@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "140802b5409bfdaff9c7aad2bd9812d31ba9781a",
-      "subject": "Make wlock t5 4p bonus not stack per caster"
+      "commit": "46d9a78d7e1b3249cf19955bb530c515bd8d2d3a",
+      "subject": "[Spell] s.34700 should only proc to UNIT_FLAG_PLAYER_CONTROLLED"
     },
     "database": {
       "commit": "fd0126b1b36319ba1ed9df4f808d2842e1ab3b73",
