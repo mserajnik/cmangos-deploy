@@ -5,8 +5,8 @@
       "subject": "[Spell] s.34700 should only proc to UNIT_FLAG_PLAYER_CONTROLLED"
     },
     "database": {
-      "commit": "fd0126b1b36319ba1ed9df4f808d2842e1ab3b73",
-      "subject": "[Instance] SHH: Extend creature_movement_template DELETE Query"
+      "commit": "d2ec47a929113b7456e50d5a27fcb34ac8e7b245",
+      "subject": "[ACID][Instance] SP/SV: fix dreghood slave/wastewalker slave/worker passive when evading"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
