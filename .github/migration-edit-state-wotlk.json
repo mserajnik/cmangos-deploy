@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "1336d500e6ff59edb5ca1a53b2d21eaf84a28e5e",
-      "subject": "ICC: Add Festergut spell script bindings"
+      "commit": "400428611858a7bbf80cccccfd378bde0879e10a",
+      "subject": "Add spell changes"
     },
     "database": {
       "commit": "427abf1df8c7675206d9005c8a263091419b1dfc",
