@@ -5,8 +5,8 @@
       "subject": "Spell: Add SpellScript to Fire Blossom spell to target random enemies"
     },
     "database": {
-      "commit": "7505fe3358ba58a9048c671fcb5007e49b3636d9",
-      "subject": "[TDB] Update [0689][0688] Remove more Crisp Spider Meat, use cmangos RequiredRaces value for porting"
+      "commit": "66ccb7bbdf9cd036b73abfed85faec02f84d2ca4",
+      "subject": "[Instance] Uldaman: Hard Link Ancient Stone Keeper Split-Trash-Pack"
     },
     "playerbots": null
   },

@@ -5,8 +5,8 @@
       "subject": "[Spell] s.34700 should only proc to UNIT_FLAG_PLAYER_CONTROLLED"
     },
     "database": {
-      "commit": "d2ec47a929113b7456e50d5a27fcb34ac8e7b245",
-      "subject": "[ACID][Instance] SP/SV: fix dreghood slave/wastewalker slave/worker passive when evading"
+      "commit": "5f18c2153a62f987786113cbd89363f310c490a3",
+      "subject": "[ACID] Grenka Bloodscreech 4490 - Flee at 15% HP"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
