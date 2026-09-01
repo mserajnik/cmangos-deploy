@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "46d9a78d7e1b3249cf19955bb530c515bd8d2d3a",
-      "subject": "[Spell] s.34700 should only proc to UNIT_FLAG_PLAYER_CONTROLLED"
+      "commit": "900ee47e8e4e0f6cf84f397e3df4d34cb6ac8557",
+      "subject": "Add s.37828"
     },
     "database": {
-      "commit": "5f18c2153a62f987786113cbd89363f310c490a3",
-      "subject": "[ACID] Grenka Bloodscreech 4490 - Flee at 15% HP"
+      "commit": "3cf5be80db089d108cb6f5ba181424be7d4c4342",
+      "subject": "[ACID] Correct %HP for Kolkar Battle Lord 4636 - Call For Help"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
