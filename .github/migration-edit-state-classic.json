@@ -5,8 +5,8 @@
       "subject": "Spell: Add SpellScript to Fire Blossom spell to target random enemies"
     },
     "database": {
-      "commit": "66ccb7bbdf9cd036b73abfed85faec02f84d2ca4",
-      "subject": "[Instance] Uldaman: Hard Link Ancient Stone Keeper Split-Trash-Pack"
+      "commit": "22b51464f1625f6ef6275771de1f5466c6f5d19e",
+      "subject": "Fix malformed beast lore damage values"
     },
     "playerbots": null
   },

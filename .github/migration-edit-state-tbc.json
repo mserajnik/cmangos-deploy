@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "900ee47e8e4e0f6cf84f397e3df4d34cb6ac8557",
-      "subject": "Add s.37828"
+      "commit": "8e3caef8e2b8a207940d759dd62c6f592cfd01d7",
+      "subject": "Add s.39152 for ruul"
     },
     "database": {
-      "commit": "3cf5be80db089d108cb6f5ba181424be7d4c4342",
-      "subject": "[ACID] Correct %HP for Kolkar Battle Lord 4636 - Call For Help"
+      "commit": "c7dfbbb1fa3a04218328ee6a7a65ce9944768943",
+      "subject": "[Instance] ZG: Zul'Gurub - Sandfury Speaker | Gurubashi Axe Thrower | Hakkari Priest (3) Static"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
