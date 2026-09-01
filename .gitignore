@@ -1,5 +1,5 @@
 /compose*.yaml
-/config/**/*
+/config/**
 !/config/**/
 /storage/**
 !/storage/**/
