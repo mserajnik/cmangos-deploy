@@ -5,10 +5,10 @@
 </h1>
 
 [![Lint status][badge-lint-status]][badge-lint-status-url]
-[![Build status][badge-build-status]][badge-build-status-url]\
-[![Latest Classic build][badge-latest-classic-build]][badge-latest-classic-build-url]\
-[![Latest TBC build][badge-latest-tbc-build]][badge-latest-tbc-build-url]\
-[![Latest WotLK build][badge-latest-wotlk-build]][badge-latest-wotlk-build-url]\
+[![Build status][badge-build-status]][badge-build-status-url]  
+[![Latest Classic build][badge-latest-classic-build]][badge-latest-classic-build-url]  
+[![Latest TBC build][badge-latest-tbc-build]][badge-latest-tbc-build-url]  
+[![Latest WotLK build][badge-latest-wotlk-build]][badge-latest-wotlk-build-url]  
 [![Latest build date][badge-latest-build-date]][badge-latest-build-date-url]
 
 > A Docker setup for CMaNGOS
