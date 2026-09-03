@@ -5,8 +5,8 @@
       "subject": "Add spell changes"
     },
     "database": {
-      "commit": "427abf1df8c7675206d9005c8a263091419b1dfc",
-      "subject": "[ACID] Timmy the Cruel 10808"
+      "commit": "dcdef81a84133a280201291150f322c5e215a3d0",
+      "subject": "[5872][ACID] q.11969 'Springing the Trap' - update"
     },
     "playerbots": null
   },

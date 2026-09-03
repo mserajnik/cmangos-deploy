@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "8e3caef8e2b8a207940d759dd62c6f592cfd01d7",
-      "subject": "Add s.39152 for ruul"
+      "commit": "f82e7d679c283b66bc2adc1b751aa1275e655673",
+      "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "ad514339b747992bb899d11441ef1c19d7a87e94",
-      "subject": "[ACID] Target Dummy 2673 & Advanced Target Dummy 2674"
+      "commit": "f585696ea3f4eaefdf663bbd7cf7a2bc3183c77a",
+      "subject": "[Instance] OHF: Port Old Hillsbrad Foothills - Orc Hut Barrel (182589) to spawn_groups"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
