@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "f585696ea3f4eaefdf663bbd7cf7a2bc3183c77a",
-      "subject": "[Instance] OHF: Port Old Hillsbrad Foothills - Orc Hut Barrel (182589) to spawn_groups"
+      "commit": "5078439a44d208732a903bca2d7df51941fb373a",
+      "subject": "[Instance] OHF: Fix Copy Pasta - thx @lduguid"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
