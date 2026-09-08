@@ -5,8 +5,8 @@
       "subject": "Add spell changes"
     },
     "database": {
-      "commit": "dcdef81a84133a280201291150f322c5e215a3d0",
-      "subject": "[5872][ACID] q.11969 'Springing the Trap' - update"
+      "commit": "b0cff7894ce7dbaaa3807eb7bd7f90f672f5b184",
+      "subject": "[5873][ACID] q.11590 'Abduction'"
     },
     "playerbots": null
   },
