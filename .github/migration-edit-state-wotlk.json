@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "400428611858a7bbf80cccccfd378bde0879e10a",
-      "subject": "Add spell changes"
+      "commit": "2448954ee7611b2f580119f789bfd14116922250",
+      "subject": "Borean: Quest 11590"
     },
     "database": {
-      "commit": "b0cff7894ce7dbaaa3807eb7bd7f90f672f5b184",
-      "subject": "[5873][ACID] q.11590 'Abduction'"
+      "commit": "c96637faeb7e67216ef7aeed1fa658011bc50528",
+      "subject": "ACID: Remove scripts moved to core"
     },
     "playerbots": null
   },
