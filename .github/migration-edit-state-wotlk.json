@@ -5,8 +5,8 @@
       "subject": "Borean: Quest 11590"
     },
     "database": {
-      "commit": "c96637faeb7e67216ef7aeed1fa658011bc50528",
-      "subject": "ACID: Remove scripts moved to core"
+      "commit": "ae1dec200dd4e9cd6412a0462d5fb48cdf57727d",
+      "subject": "[5874][ACID] q.11310 'Warning: Some Assembly Required' - fix"
     },
     "playerbots": null
   },
