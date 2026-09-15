@@ -213,7 +213,6 @@ apply_tracked_sql_dir() {
   local key_prefix="$3"
   local recursive="${4:-false}"
   local sql_file
-  local sql_files
   local status
 
   if [[ ! -d "$dir" ]]; then
@@ -222,30 +221,45 @@ apply_tracked_sql_dir() {
 
   # Collect the listing before the loop rather than substituting it into the
   # heredoc, where a failed `find` is indistinguishable from an empty directory
-  # and every file would be skipped while the run reports success.
+  # and every file would be skipped while the run reports success. The listing
+  # is NUL-separated and goes through a file, because a custom SQL name comes
+  # from a user's bind mount and a command substitution drops a NUL byte.
+  local listing
+  local sql_file_list=()
+  listing="$(mktemp)"
   set +e
   if [[ "$recursive" = true ]]; then
-    sql_files="$(find "$dir" -type f -name '*.sql')"
+    find "$dir" -type f -name '*.sql' -print0 >"$listing"
   else
-    sql_files="$(find "$dir" -maxdepth 1 -type f -name '*.sql')"
+    find "$dir" -maxdepth 1 -type f -name '*.sql' -print0 >"$listing"
   fi
   status=$?
   set -e
 
   if [[ $status -ne 0 ]]; then
+    rm -f "$listing"
     cmangos_fail "Failed to list SQL files in '$dir'."
   fi
 
-  sql_files="$(sort <<<"$sql_files")"
+  set +e
+  sort -z -o "$listing" "$listing"
+  status=$?
+  set -e
 
-  while read -r sql_file; do
-    [[ -n "$sql_file" ]] || continue
+  if [[ $status -ne 0 ]]; then
+    rm -f "$listing"
+    cmangos_fail "Failed to sort the SQL file listing in '$dir'."
+  fi
 
+  mapfile -d '' -t sql_file_list <"$listing"
+  rm -f "$listing"
+
+  for sql_file in "${sql_file_list[@]}"; do
     apply_tracked_sql_file \
       "$db_name" \
       "$sql_file" \
       "$key_prefix/$(basename "$sql_file")"
-  done <<<"$sql_files"
+  done
 }
 
 required_version_table_name() {
@@ -999,18 +1013,32 @@ process_custom_sql() {
   fi
 
   # Collect the listing before the loop rather than piping into it, where a
-  # failed `find` would abort with nothing said about which step failed.
+  # failed `find` would abort with nothing said about which step failed. The
+  # listing is NUL-separated and goes through a file, because these names come
+  # from a user's bind mount and a command substitution drops a NUL byte.
+  sql_files_raw="$(mktemp)"
   set +e
-  sql_files_raw="$(find "$file_directory" -type f -name '*.sql')"
+  find "$file_directory" -type f -name '*.sql' -print0 >"$sql_files_raw"
   status=$?
   set -e
 
   if [[ $status -ne 0 ]]; then
+    rm -f "$sql_files_raw"
     cmangos_fail "Failed to list custom SQL files in '$file_directory'."
   fi
 
-  sql_files_raw="$(sort <<<"$sql_files_raw")"
-  mapfile -t sql_files < <(printf '%s' "$sql_files_raw")
+  set +e
+  sort -z -o "$sql_files_raw" "$sql_files_raw"
+  status=$?
+  set -e
+
+  if [[ $status -ne 0 ]]; then
+    rm -f "$sql_files_raw"
+    cmangos_fail "Failed to sort the custom SQL file listing in '$file_directory'."
+  fi
+
+  mapfile -d '' -t sql_files <"$sql_files_raw"
+  rm -f "$sql_files_raw"
 
   cmangos_log "Found ${#sql_files[@]} custom SQL file(s) to process."
 
