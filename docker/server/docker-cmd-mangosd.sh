@@ -30,8 +30,8 @@ fi
 for config_name in $required_files; do
   config_file="$config_dir/$config_name"
 
-  if [ ! -f "$config_file" ]; then
-    echo "[cmangos-deploy]: ERROR: Configuration file '$config_file' is missing, exiting." >&2
+  if [ ! -f "$config_file" ] || [ ! -r "$config_file" ]; then
+    echo "[cmangos-deploy]: ERROR: Configuration file '$config_file' is missing or not readable, exiting." >&2
     exit 1
   fi
 done
