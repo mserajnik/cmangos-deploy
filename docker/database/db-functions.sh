@@ -82,14 +82,19 @@ drop_database() {
 grant_permissions() {
   local db_name="$1"
   local silent="${2:-false}"
+  local user
+  local password
 
   if [[ "$silent" = false ]]; then
     cmangos_log "Granting permissions to database user '$MARIADB_USER' for database '$db_name'..."
   fi
 
+  user="$(sql_escape "$MARIADB_USER")"
+  password="$(sql_escape "$MARIADB_PASSWORD")"
+
   mariadb -u root -p"$MARIADB_ROOT_PASSWORD" -e \
-    "CREATE USER IF NOT EXISTS '$MARIADB_USER'@'%' IDENTIFIED BY '$MARIADB_PASSWORD'; \
-    GRANT ALL ON \`$db_name\`.* TO '$MARIADB_USER'@'%'; \
+    "CREATE USER IF NOT EXISTS '$user'@'%' IDENTIFIED BY '$password'; \
+    GRANT ALL ON \`$db_name\`.* TO '$user'@'%'; \
     FLUSH PRIVILEGES;"
 }
 
@@ -576,16 +581,24 @@ apply_character_static_sql() {
 configure_realm() {
   local realm_name
   local realm_address
+  local realm_port
+  local realm_icon
+  local realm_timezone
+  local realm_allowed_security_level
 
   realm_name="$(sql_escape "$CMANGOS_REALMLIST_NAME")"
   realm_address="$(sql_escape "$CMANGOS_REALMLIST_ADDRESS")"
+  realm_port="$(sql_escape "$CMANGOS_REALMLIST_PORT")"
+  realm_icon="$(sql_escape "$CMANGOS_REALMLIST_ICON")"
+  realm_timezone="$(sql_escape "$CMANGOS_REALMLIST_TIMEZONE")"
+  realm_allowed_security_level="$(sql_escape "$CMANGOS_REALMLIST_ALLOWED_SECURITY_LEVEL")"
   cmangos_log "Configuring realm '$CMANGOS_REALMLIST_NAME'..."
 
   mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "realmd" -e \
     "INSERT INTO \`realmlist\` \
        (\`id\`, \`name\`, \`address\`, \`port\`, \`icon\`, \`timezone\`, \`allowedSecurityLevel\`) \
      VALUES \
-       (1, '$realm_name', '$realm_address', '$CMANGOS_REALMLIST_PORT', '$CMANGOS_REALMLIST_ICON', '$CMANGOS_REALMLIST_TIMEZONE', '$CMANGOS_REALMLIST_ALLOWED_SECURITY_LEVEL') \
+       (1, '$realm_name', '$realm_address', '$realm_port', '$realm_icon', '$realm_timezone', '$realm_allowed_security_level') \
      ON DUPLICATE KEY UPDATE \
        \`name\` = VALUES(\`name\`), \
        \`address\` = VALUES(\`address\`), \
