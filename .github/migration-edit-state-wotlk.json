@@ -1,8 +1,8 @@
 {
   "world": {
     "core": {
-      "commit": "2448954ee7611b2f580119f789bfd14116922250",
-      "subject": "Borean: Quest 11590"
+      "commit": "bf02f7f561b7b232ed62d93e4636a6544b73329b",
+      "subject": "Add attributes for evade for ursoc quest"
     },
     "database": {
       "commit": "ae1dec200dd4e9cd6412a0462d5fb48cdf57727d",
