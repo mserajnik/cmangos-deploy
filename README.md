@@ -34,7 +34,7 @@ simplify managing a CMaNGOS setup:
   yourself every time you want to update.
 - __Support for all three CMaNGOS expansions__: Classic, TBC and WotLK are each
   available as separate prebuilt images.
-- __Built-in [Playerbots][playerbots] support__: bots can be spawned on demand,
+- __Built-in [Playerbot][playerbots] support__: bots can be spawned on demand,
   or they can populate the world automatically.
 - __Seamless, automated database migrations__: when pulling the latest Docker
   images and re-creating the containers, migrations are applied automatically
