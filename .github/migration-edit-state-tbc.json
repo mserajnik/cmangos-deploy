@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "5078439a44d208732a903bca2d7df51941fb373a",
-      "subject": "[Instance] OHF: Fix Copy Pasta - thx @lduguid"
+      "commit": "808d6b3ef31bb455b8f8ab01dc6be98ad72df2c2",
+      "subject": "[Instance] ZG: Set General Respawntime to 6, Set some is_spawn, Improve Gahz'ranka summon script"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
