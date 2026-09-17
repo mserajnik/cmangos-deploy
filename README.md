@@ -34,8 +34,10 @@ simplify managing a CMaNGOS setup:
   yourself every time you want to update.
 - __Support for all three CMaNGOS expansions__: Classic, TBC and WotLK are each
   available as separate prebuilt images.
-- __Built-in [Playerbot][playerbots] support__: bots can be spawned on demand,
-  or they can populate the world automatically.
+- __Built-in [Playerbot][playerbots] support__: spawn bots from characters on
+  your own account, populate the world with AI-controlled players that level,
+  quest, group up and run dungeons, and simulate a living economy in the
+  auction house.
 - __Seamless, automated database migrations__: when pulling the latest Docker
   images and re-creating the containers, migrations are applied automatically
   to keep your database up to date at all times.
@@ -177,7 +179,7 @@ around easily.
 > Both can be re-enabled by adjusting the marked options. Players can still
 > spawn bots manually via the in-game command regardless.
 
-> [!CAUTION]
+> [!WARNING]
 > Options relating to certain things that cmangos-deploy relies on to work
 > correctly (like the database connections or configured directories such as
 > the `DataDir` or the `LogsDir`) should not be adjusted unless you absolutely
@@ -245,7 +247,7 @@ should also be of interest; changing the `CMANGOS_REALMLIST_ADDRESS` to a LAN
 IP, a WAN IP or a domain name is required if you want to allow non-local
 connections.
 
-> [!CAUTION]
+> [!WARNING]
 > Anything in your `compose.yaml` that is not commented or explicitly mentioned
 > in this README, regardless of the section, is likely something you do not
 > have to (or, in some cases, _must not_) change. Doing so may lead to
@@ -352,7 +354,7 @@ This pulls the Docker images first and afterwards automatically creates and
 starts the containers. During the first startup it might take a little longer
 until the server becomes available due to the initial database creation.
 
-> [!CAUTION]
+> [!WARNING]
 > Make sure to not (accidentally) stop CMaNGOS before the database creation
 > process has finished; otherwise, you will likely end up with a broken
 > database and will have to delete and re-create it.
@@ -497,7 +499,7 @@ resolve:
 cmangos-deploy will then record the acknowledgement and continue startup. If
 you instead want to abort, run `docker compose down`.
 
-> [!CAUTION]
+> [!WARNING]
 > When you run `cmangos-confirm-changes`, cmangos-deploy treats the listed
 > commits as applied and continues. It does not check your database to verify
 > that the changes you made match what the commits describe. If your manual fix
