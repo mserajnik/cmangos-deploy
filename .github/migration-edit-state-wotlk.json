@@ -1,12 +1,12 @@
 {
   "world": {
     "core": {
-      "commit": "bf02f7f561b7b232ed62d93e4636a6544b73329b",
-      "subject": "Add attributes for evade for ursoc quest"
+      "commit": "2fc8161eeddfce737766d449d0ff94f48b3df2e0",
+      "subject": "ICC: restore Professor Putricide encounter (#697)"
     },
     "database": {
-      "commit": "ae1dec200dd4e9cd6412a0462d5fb48cdf57727d",
-      "subject": "[5874][ACID] q.11310 'Warning: Some Assembly Required' - fix"
+      "commit": "0fb86aa9351bdb737db6b63e6ab49a1af0022dea",
+      "subject": "Nimboya's Pike 142697"
     },
     "playerbots": null
   },
