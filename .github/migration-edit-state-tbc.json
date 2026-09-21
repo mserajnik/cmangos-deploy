@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "808d6b3ef31bb455b8f8ab01dc6be98ad72df2c2",
-      "subject": "[Instance] ZG: Set General Respawntime to 6, Set some is_spawn, Improve Gahz'ranka summon script"
+      "commit": "59c5db6052ca6025f39bdee37ddb5b0279b1ad67",
+      "subject": "[ACID] Readd AI for Devastation 21269 - spell_list"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
