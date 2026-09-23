@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "59c5db6052ca6025f39bdee37ddb5b0279b1ad67",
-      "subject": "[ACID] Readd AI for Devastation 21269 - spell_list"
+      "commit": "00be8810dbe9c1382da5c7db10be6ef47878330a",
+      "subject": "[Instance] MT: Add two more entries for 5570190"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
