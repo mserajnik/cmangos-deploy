@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "00be8810dbe9c1382da5c7db10be6ef47878330a",
-      "subject": "[Instance] MT: Add two more entries for 5570190"
+      "commit": "247d500b222ad0e443fc80ad8e8df562e7112785",
+      "subject": "[Custom] Tree of Life (Passive) s.34123 should not stack"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
