@@ -22,3 +22,21 @@ path = [
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Michael Serajnik <https://github.com/mserajnik>"
 SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "docker/patches/**/*.patch"
+precedence = "aggregate"
+SPDX-FileCopyrightText = [
+  "CMaNGOS <https://github.com/cmangos>",
+  "2026 Michael Serajnik <https://github.com/mserajnik>",
+]
+SPDX-License-Identifier = "GPL-2.0-or-later"
+
+[[annotations]]
+path = "docker/patches/*/extract-high-resolution-data.patch"
+precedence = "aggregate"
+SPDX-FileCopyrightText = [
+  "CMaNGOS <https://github.com/cmangos>",
+  "2026 Michael Serajnik <https://github.com/mserajnik>",
+]
+SPDX-License-Identifier = "FSFULLRWD"

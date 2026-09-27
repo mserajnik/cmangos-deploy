@@ -79,6 +79,7 @@ simplify managing a CMaNGOS setup:
     - [Restoring a backup](#restoring-a-backup)
   - [Accessing the database](#accessing-the-database)
   - [Database security](#database-security)
+- [Modifications](#modifications)
 - [Maintainer](#maintainer)
 - [Contribute](#contribute)
 - [Licenses](#licenses)
@@ -596,6 +597,22 @@ be provided here.
 > the user named via the `MARIADB_USER` environment variable) do not have any
 > restrictions in place in regards to which IPs/hosts can connect.
 
+## Modifications
+
+The images contain [CMaNGOS][cmangos] with the patches from
+[`docker/patches/`](docker/patches) applied. The patches are strictly for:
+
+- Correcting problems that break the build or the running server.
+- Adapting the code to how the images are built and run.
+- Changing upstream defaults where another value gives objectively better
+  results.
+
+Once a patch is no longer needed, it is removed, so there may be times when the
+directory contains no patches at all.
+
+Patches in `all/` apply to every expansion's build, and patches in `classic/`,
+`tbc/`, or `wotlk/` apply only to that expansion's build.
+
 ## Maintainer
 
 [Michael Serajnik][maintainer]
@@ -611,6 +628,9 @@ You are welcome to help out!
 - [`AGPL-3.0-or-later`][license-agpl-3.0-or-later] (Code)
 - [`GPL-2.0-only`][license-gpl-2.0-only] (Database entrypoint script, based on
   MariaDB's)
+- [`GPL-2.0-or-later`][license-gpl-2.0-or-later] (Some patches, matching
+  CMaNGOS source)
+- [`FSFULLRWD`][license-fsfullrwd] (Some patches, matching CMaNGOS source)
 - [`CC-BY-SA-4.0`][license-cc-by-sa-4.0] (Documentation, graphic assets and
   issue templates)
 - [`CC0-1.0`][license-cc0-1.0] (Configuration files)
@@ -657,7 +677,9 @@ non-commercial use only and comes with no warranty.
 [license-agpl-3.0-or-later]: LICENSES/AGPL-3.0-or-later.txt
 [license-cc-by-sa-4.0]: LICENSES/CC-BY-SA-4.0.txt
 [license-cc0-1.0]: LICENSES/CC0-1.0.txt
+[license-fsfullrwd]: LICENSES/FSFULLRWD.txt
 [license-gpl-2.0-only]: LICENSES/GPL-2.0-only.txt
+[license-gpl-2.0-or-later]: LICENSES/GPL-2.0-or-later.txt
 [maintainer]: https://github.com/mserajnik
 [mangosd-gm-options]: https://github.com/mserajnik/cmangos-deploy/blob/master/config/classic/mangosd.conf.example#L1180-L1295
 [phpmyadmin]: https://www.phpmyadmin.net/

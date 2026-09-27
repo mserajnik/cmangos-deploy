@@ -1,0 +1,17 @@
+diff --git a/src/game/World/World.cpp b/src/game/World/World.cpp
+index cd7a3b8..55eed06 100644
+--- a/src/game/World/World.cpp
++++ b/src/game/World/World.cpp
+@@ -1579,12 +1579,6 @@ void World::Update(uint32 diff)
+ 
+     m_averageDiff = (uint32)(m_currentDiffSum / m_histDiff.size());
+ 
+-    if (m_currentDiffSumIndex && m_currentDiffSumIndex % 60 == 0)
+-    {
+-        sLog.outBasic("Avg Diff: %u. Sessions online: %u.", m_averageDiff, (uint32)GetActiveSessionCount());
+-        sLog.outBasic("Max Diff: %u.", m_maxDiff);
+-    }
+-
+     if (m_currentDiffSum % 3000 == 0)
+     {
+         m_maxDiff = *std::max_element(m_histDiff.begin(), m_histDiff.end());

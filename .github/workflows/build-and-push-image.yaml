@@ -73,7 +73,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  CMANGOS_PATCHES_REPOSITORY_URL: ${{ inputs.workflow_mode == 'default' && 'https://github.com/mserajnik/cmangos-deploy-patches.git' || inputs.patches_repository_url }}
+  CMANGOS_PATCHES_REPOSITORY_URL: ${{ inputs.patches_repository_url }}
   OCI_ANNOTATION_AUTHORS: ${{ vars.OCI_ANNOTATION_AUTHORS || github.repository_owner }}
   OCI_ANNOTATION_URL: https://github.com/${{ github.repository }}
   OCI_ANNOTATION_DOCUMENTATION: https://github.com/${{ github.repository }}/blob/master/README.md

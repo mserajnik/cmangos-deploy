@@ -32,6 +32,8 @@ ARG CMANGOS_PLAYERBOTS_REVISION
 ARG CMANGOS_PATCHES_REPOSITORY_URL
 ARG CMANGOS_FAIL_ON_PATCH_ERROR
 
+COPY ./docker/patches /build/patches
+
 RUN \
   apt update && \
   apt install -y --no-install-recommends \
@@ -46,24 +48,30 @@ RUN \
   cd /build/playerbots && \
   git checkout "$CMANGOS_PLAYERBOTS_REVISION" && \
   cd /build/core && \
+  # The bundled patches apply to every build. A custom build can also name a
+  # repository with additional patches in the same layout, which apply after
+  # the bundled ones.
   if [ -n "$CMANGOS_PATCHES_REPOSITORY_URL" ]; then \
-    echo "Cloning and applying patches from $CMANGOS_PATCHES_REPOSITORY_URL"; \
-    git clone "$CMANGOS_PATCHES_REPOSITORY_URL" /build/patches && \
-    patch_count=0 && \
-    # Patches in `all` (and per-repo subdirectories under `all`) are applied to
-    # every expansion; patches in `<expansion>` (and per-repo subdirectories
-    # there) only to that expansion. Top-level `*.patch` files apply to
-    # `/build/core`; `database/*.patch` and `playerbots/*.patch` apply to the
-    # corresponding cloned source tree.
-    # The expansion-specific and per-repo subdirectories are optional and may
-    # not exist.
+    echo "Cloning additional patches from $CMANGOS_PATCHES_REPOSITORY_URL"; \
+    git clone "$CMANGOS_PATCHES_REPOSITORY_URL" /build/additional-patches || exit 1; \
+  fi && \
+  patch_count=0 && \
+  additional_patch_count=0 && \
+  # Patches in `all` (and per-repo subdirectories under `all`) are applied to
+  # every expansion; patches in `<expansion>` (and per-repo subdirectories
+  # there) only to that expansion. Top-level `*.patch` files apply to
+  # `/build/core`; `database/*.patch` and `playerbots/*.patch` apply to the
+  # corresponding cloned source tree.
+  # The expansion-specific and per-repo subdirectories are optional and may not
+  # exist.
+  for patches_dir in /build/patches /build/additional-patches; do \
     for patch in \
-      /build/patches/all/*.patch \
-      /build/patches/"$CMANGOS_EXPANSION"/*.patch \
-      /build/patches/all/database/*.patch \
-      /build/patches/"$CMANGOS_EXPANSION"/database/*.patch \
-      /build/patches/all/playerbots/*.patch \
-      /build/patches/"$CMANGOS_EXPANSION"/playerbots/*.patch; \
+      "$patches_dir"/all/*.patch \
+      "$patches_dir"/"$CMANGOS_EXPANSION"/*.patch \
+      "$patches_dir"/all/database/*.patch \
+      "$patches_dir"/"$CMANGOS_EXPANSION"/database/*.patch \
+      "$patches_dir"/all/playerbots/*.patch \
+      "$patches_dir"/"$CMANGOS_EXPANSION"/playerbots/*.patch; \
     do \
       if [ -f "$patch" ]; then \
         case "$patch" in \
@@ -79,13 +87,17 @@ RUN \
           fi; \
         fi; \
         patch_count=$((patch_count + 1)); \
+        case "$patch" in \
+          /build/additional-patches/*) additional_patch_count=$((additional_patch_count + 1)) ;; \
+        esac; \
       fi; \
     done; \
-    if [ "$patch_count" -eq 0 ]; then \
-      echo "No patches found"; \
-    fi; \
-  else \
-    echo "No repository to apply patches from provided"; \
+  done && \
+  if [ "$patch_count" -eq 0 ]; then \
+    echo "No patches found"; \
+  fi && \
+  if [ -n "$CMANGOS_PATCHES_REPOSITORY_URL" ] && [ "$additional_patch_count" -eq 0 ]; then \
+    echo "No additional patches found"; \
   fi && \
   mkdir -p /sql/core /sql/custom /sql/database /sql/playerbots && \
   cp -a /build/core/sql/base /sql/core/base && \

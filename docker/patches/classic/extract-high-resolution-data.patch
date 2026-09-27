@@ -1,0 +1,22 @@
+diff --git a/contrib/extractor_scripts/ExtractResources.sh b/contrib/extractor_scripts/ExtractResources.sh
+index b455ad8..d5ad522 100755
+--- a/contrib/extractor_scripts/ExtractResources.sh
++++ b/contrib/extractor_scripts/ExtractResources.sh
+@@ -149,7 +149,7 @@ fi
+ 
+ ## Check if user want to do high resolution extraction of maps
+ if [ "$1" = "a" ]; then
+-  AD_RES=""
++  AD_RES="-f 0"
+ elif [ "$USE_AD" = "1" ]; then
+   echo
+   echo "Would you like the extraction of maps to be high-resolution? [y/N]"
+@@ -163,7 +163,7 @@ fi
+ 
+ ## Check if user want to do high resolution extraction of vmaps
+ if [ "$1" = "a" ]; then
+-  VMAP_RES=""
++  VMAP_RES="-l"
+ elif [ "$USE_VMAPS" = "1" ]; then
+   echo
+   echo "Would you like the extraction of vmaps to be high-resolution? [y/N]"

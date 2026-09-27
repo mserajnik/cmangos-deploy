@@ -46,7 +46,7 @@ on:
       patches_repository_url:
         type: string
         required: false
-        description: (Optional) A URL to a repository that contains patches to apply to the core code (patches have to end in `.patch` and be located in either `all/` for patches applied to every expansion's build or `<expansion>/` (e.g., `tbc/`) for patches applied only to that expansion's build)
+        description: (Optional) A URL to a repository that contains additional patches to apply to the core code after the bundled ones (patches have to end in `.patch` and be located in either `all/` for patches applied to every expansion's build or `<expansion>/` (for example, `tbc/`) for patches applied only to that expansion's build)
       custom_tag_fragment:
         type: string
         required: false

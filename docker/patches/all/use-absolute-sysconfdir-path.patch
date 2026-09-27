@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 92b5e5a..d00765e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -390,7 +390,7 @@ else()
+ endif()
+ 
+ if(UNIX)
+-  add_compile_definitions(SYSCONFDIR="../${CONF_FOLDER_NAME}/")
++  add_compile_definitions(SYSCONFDIR="${CMAKE_INSTALL_PREFIX}/config/")
+ endif()
+ 
+ if(BUILD_GAME_SERVER OR BUILD_LOGIN_SERVER OR BUILD_EXTRACTORS)
