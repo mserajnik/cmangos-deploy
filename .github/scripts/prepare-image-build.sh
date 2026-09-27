@@ -27,7 +27,6 @@ require_env OCI_ANNOTATION_URL
 require_env OCI_ANNOTATION_DOCUMENTATION
 require_env OCI_ANNOTATION_SOURCE
 require_env OCI_ANNOTATION_VENDOR
-require_env OCI_ANNOTATION_LICENSES
 
 timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # shellcheck disable=SC2153
@@ -61,6 +60,7 @@ is_multi_arch="false"
 title=""
 description=""
 base_name=""
+licenses=""
 ref_name=""
 image_name_base=""
 image_name=""
@@ -104,23 +104,27 @@ case "$IMAGE_KIND" in
     require_env OCI_ANNOTATION_SERVER_TITLE
     require_env OCI_ANNOTATION_SERVER_DESCRIPTION
     require_env OCI_ANNOTATION_SERVER_BASE_NAME
+    require_env OCI_ANNOTATION_SERVER_LICENSES
 
     image_name_base="cmangos-server"
     dockerfile="./docker/server/Dockerfile"
     title="$(trim "$OCI_ANNOTATION_SERVER_TITLE")"
     description="$(trim "$OCI_ANNOTATION_SERVER_DESCRIPTION")"
     base_name="$(trim "$OCI_ANNOTATION_SERVER_BASE_NAME")"
+    licenses="$(trim "$OCI_ANNOTATION_SERVER_LICENSES")"
     ;;
   database)
     require_env OCI_ANNOTATION_DATABASE_TITLE
     require_env OCI_ANNOTATION_DATABASE_DESCRIPTION
     require_env OCI_ANNOTATION_DATABASE_BASE_NAME
+    require_env OCI_ANNOTATION_DATABASE_LICENSES
 
     image_name_base="cmangos-database"
     dockerfile="./docker/database/Dockerfile"
     title="$(trim "$OCI_ANNOTATION_DATABASE_TITLE")"
     description="$(trim "$OCI_ANNOTATION_DATABASE_DESCRIPTION")"
     base_name="$(trim "$OCI_ANNOTATION_DATABASE_BASE_NAME")"
+    licenses="$(trim "$OCI_ANNOTATION_DATABASE_LICENSES")"
     ;;
   *)
     fail "Unsupported image kind '$IMAGE_KIND'."
@@ -236,7 +240,7 @@ fi
 
 metadata_entries+=(
   "vendor=$oci_annotation_vendor"
-  "licenses=$OCI_ANNOTATION_LICENSES"
+  "licenses=$licenses"
   "ref.name=$ref_name"
   "title=$title"
   "description=$description"

@@ -79,13 +79,14 @@ env:
   OCI_ANNOTATION_DOCUMENTATION: https://github.com/${{ github.repository }}/blob/master/README.md
   OCI_ANNOTATION_SOURCE: https://github.com/${{ github.repository }}
   OCI_ANNOTATION_VENDOR: ${{ vars.OCI_ANNOTATION_VENDOR || github.repository_owner }}
-  OCI_ANNOTATION_LICENSES: GPL-2.0-or-later
   OCI_ANNOTATION_SERVER_TITLE: ${{ format('cmangos-deploy - {0}CMaNGOS {1} server image', inputs.workflow_mode == 'custom' && 'Custom ' || '', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
   OCI_ANNOTATION_SERVER_DESCRIPTION: ${{ format('CMaNGOS {0} is a server emulator supporting version {1}.', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK', inputs.expansion == 'classic' && '1.12.1' || inputs.expansion == 'tbc' && '2.4.3' || '3.3.5a') }}
   OCI_ANNOTATION_SERVER_BASE_NAME: ubuntu:26.04
+  OCI_ANNOTATION_SERVER_LICENSES: AGPL-3.0-or-later AND GPL-2.0-or-later
   OCI_ANNOTATION_DATABASE_TITLE: ${{ format('cmangos-deploy - {0}CMaNGOS {1} database image', inputs.workflow_mode == 'custom' && 'Custom ' || '', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
   OCI_ANNOTATION_DATABASE_DESCRIPTION: ${{ format('Database for the CMaNGOS {0} server emulator.', inputs.expansion == 'classic' && 'Classic' || inputs.expansion == 'tbc' && 'TBC' || 'WotLK') }}
   OCI_ANNOTATION_DATABASE_BASE_NAME: mariadb:12.3
+  OCI_ANNOTATION_DATABASE_LICENSES: AGPL-3.0-or-later AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only
 
 jobs:
   prepare:
