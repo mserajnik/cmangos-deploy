@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "247d500b222ad0e443fc80ad8e8df562e7112785",
-      "subject": "[Custom] Tree of Life (Passive) s.34123 should not stack"
+      "commit": "fb5a68c648856570530cefc526f6a69c084f7372",
+      "subject": "[ACID][Instance] OHF - rework part 1 (#1304)"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
