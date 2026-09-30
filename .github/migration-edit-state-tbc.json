@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "fb5a68c648856570530cefc526f6a69c084f7372",
-      "subject": "[ACID][Instance] OHF - rework part 1 (#1304)"
+      "commit": "4ddb766f9568172e942b8af3cf9082c71cde5060",
+      "subject": "Correct NpcFlag for Durotar Brewfest npc"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
