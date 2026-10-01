@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "4ddb766f9568172e942b8af3cf9082c71cde5060",
-      "subject": "Correct NpcFlag for Durotar Brewfest npc"
+      "commit": "9f111e0cae795d587413bedeeeb8a01c21b57272",
+      "subject": "[ACID] Add Cleanup for Fel Eye Stalk 23323 - Despawn on Generic Timer"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
