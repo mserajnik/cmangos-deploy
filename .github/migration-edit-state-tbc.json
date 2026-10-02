@@ -5,8 +5,8 @@
       "subject": "Remove old hive tower areatrigger"
     },
     "database": {
-      "commit": "9f111e0cae795d587413bedeeeb8a01c21b57272",
-      "subject": "[ACID] Add Cleanup for Fel Eye Stalk 23323 - Despawn on Generic Timer"
+      "commit": "0b18305b916ea5eb16286d0b6157afefc290626e",
+      "subject": "[ACID] Add Emote for Ricter/Alina/Dermot/Kegan Darkmar - Flee at 20% HP"
     },
     "playerbots": {
       "commit": "05f532e7d3017ece5c5138dca4d7d09958556702",
