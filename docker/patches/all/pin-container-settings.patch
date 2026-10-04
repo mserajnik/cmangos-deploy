@@ -1,0 +1,57 @@
+diff --git a/src/shared/Config/Config.cpp b/src/shared/Config/Config.cpp
+index dfcd7aa..819ff75 100644
+--- a/src/shared/Config/Config.cpp
++++ b/src/shared/Config/Config.cpp
+@@ -92,10 +92,52 @@ bool Config::IsSet(const std::string& name) const
+     return m_entries.find(nameLower) != m_entries.cend();
+ }
+ 
++// cmangos-deploy: the container setup depends on these options, so the image
++// sets them whatever the configuration file says. The database connections
++// take their user and password from the environment. The names are in lower
++// case, like the keys of `m_entries`.
++static std::optional<std::string> PinnedValue(std::string const& nameLower)
++{
++    static std::unordered_map<std::string, std::string> const pinnedValues = {
++        {"bindip", "0.0.0.0"},
++        {"datadir", "/opt/cmangos/storage/data"},
++        {"logsdir", "/opt/cmangos/storage/logs"},
++        {"ra.ip", "0.0.0.0"},
++        {"ra.port", "3443"},
++        {"realmserverport", "3724"},
++        {"soap.ip", "0.0.0.0"},
++        {"soap.port", "7878"},
++        {"warden.moduledir", "/opt/cmangos/bin/warden_modules"},
++        {"worldserverport", "8085"},
++    };
++    static std::unordered_map<std::string, std::string> const databaseNames = {
++        {"characterdatabaseinfo", "characters"},
++        {"logindatabaseinfo", "realmd"},
++        {"logsdatabaseinfo", "logs"},
++        {"worlddatabaseinfo", "mangos"},
++    };
++
++    if (auto const itr = pinnedValues.find(nameLower); itr != pinnedValues.cend())
++        return itr->second;
++
++    if (auto const itr = databaseNames.find(nameLower); itr != databaseNames.cend())
++    {
++        char const* user = std::getenv("CMANGOS_DATABASE_USER");
++        char const* password = std::getenv("CMANGOS_DATABASE_PASSWORD");
++        return std::string("database;3306;") + (user ? user : "") + ";" +
++               (password ? password : "") + ";" + itr->second;
++    }
++
++    return {};
++}
++
+ const std::string Config::GetStringDefault(const std::string& name, const std::string& def) const
+ {
+     auto const nameLower = boost::algorithm::to_lower_copy(name);
+ 
++    if (auto const pinned = PinnedValue(nameLower))
++        return *pinned;
++
+     auto const entry = m_entries.find(nameLower);
+     
+     if (entry == m_entries.cend())

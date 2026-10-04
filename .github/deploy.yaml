@@ -1,0 +1,158 @@
+# The build of every image, which the build workflow passes to
+# docker-deploy-workflows. See its `docs/deploy-yaml.md` for the keys.
+
+primary-source: core
+
+# A `pin` is the commit at which the watched files were last reviewed. After
+# updating the local copies, set it to the commit a failing check suggests.
+sources:
+  core:
+    repository: cmangos/mangos-{variant}
+    branch: master
+    pins:
+      classic: 9c4fb5556541cd76e882e93763e68103fc173453
+      tbc: 05d66de6c1637dfaa7128cb0903ad8992c85362a
+      wotlk: cd3df4d8878df7af663bc8fd039d649f403de604
+    cutoffs:
+      classic: 1aea167db3494eb4fe9667227b886d2f662627f6
+      tbc: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
+      wotlk: fef8d93190482aaacf42f8831ae377bf7710925f
+  db:
+    repository: cmangos/{variant}-db
+    branch: master
+    pins:
+      classic: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
+      tbc: 13b1403e2984a17c41ca0e9b32634880469f0ef6
+      wotlk: cb487b287aa1980aff157f8557999aeada505018
+    cutoffs:
+      classic: 2c980fa2175c9430b50fad644b2a4ef8204c4bb3
+      tbc: 7d5224900b2cc484de5e06fa101965703ea27a0a
+      wotlk: cb487b287aa1980aff157f8557999aeada505018
+  playerbots:
+    repository: cmangos/playerbots
+    branch: master
+    pin: 1bafc2131524ea01c88eb2c15acbc59d9db9c90a
+    cutoff: c33dfac220eb624761b6737324071ad7fae5b39f
+
+# Each expansion is a variant and gets its own server and database packages.
+variants:
+  classic:
+    moving-tags: [latest]
+    vars: {name: Classic, client-version: 1.12.1}
+  tbc:
+    moving-tags: [latest]
+    vars: {name: TBC, client-version: 2.4.3}
+  wotlk:
+    moving-tags: [latest]
+    vars: {name: WotLK, client-version: 3.3.5a}
+
+vars:
+  tag: "{variant}-core.{short-commit:core}-db.{short-commit:db}-playerbots.{short-commit:playerbots}"
+
+drift:
+  upstreams:
+    # Bump the commit in `docker/database/Dockerfile` and in the header of
+    # `docker/database/docker-entrypoint.sh` along with this pin.
+    mariadb:
+      repository: MariaDB/mariadb-docker
+      branch: master
+      pin: 063eb10da092170beea08d2c629b6eb79d28cceb
+  # A change upstream that breaks a patch already fails the build.
+  checks:
+    # A new `find_package(...)` in `CMakeLists.txt` can add a package the
+    # server image has to install. The configuration templates are the sources
+    # of the `*.conf.example` files under `config/`. Only Classic has
+    # `mods.conf`.
+    - source: core
+      files: [CMakeLists.txt, src/game/Anticheat/module/anticheat.conf.dist.in, src/game/AuctionHouseBot/ahbot.conf.dist.in, src/mangosd/mangosd.conf.dist.in, src/realmd/realmd.conf.dist.in]
+    - {source: core, variants: [classic], files: [src/mangosd/mods.conf.dist.in]}
+    # `docker/database/db-functions.sh` repeats the installation and update
+    # steps of `InstallFullDB.sh`. A change to them may need the same change
+    # there.
+    - {source: db, files: [InstallFullDB.sh]}
+    # `fix_tbc_locales_gameobject` in `docker/database/db-functions.sh` repairs
+    # the table that this file re-creates with its pre-`s2485` columns. A
+    # change here likely means upstream fixed it, and the workaround can be
+    # removed.
+    - {source: db, variants: [tbc], files: [locales/OtherLocales.sql]}
+    # Playerbots has one configuration template per expansion.
+    - {source: playerbots, files: [playerbot/aiplayerbot.conf.dist.in, playerbot/aiplayerbot.conf.dist.in.tbc, playerbot/aiplayerbot.conf.dist.in.wotlk]}
+    # `docker/database/docker-entrypoint.sh` builds on this entrypoint.
+    - {source: mariadb, files: [12.3/docker-entrypoint.sh]}
+
+# A rule has to watch or exclude every file that a `claim` matches, or the run
+# fails.
+migration-edits:
+  targets:
+    world:
+      remedy: recreate
+      sources:
+        core:
+          migrations: [sql/base/mangos.sql, sql/base/ahbot/*.sql, sql/base/dbc/cmangos_fixes/*.sql, sql/base/dbc/original_data/*.sql, sql/scriptdev2/*.sql, sql/updates/mangos/*.sql]
+          claim: [sql/base/**/*.sql, sql/scriptdev2/**/*.sql, sql/updates/**/*.sql]
+        db:
+          base: [Full_DB/*.sql, Full_DB/*.sql.gz]
+          migrations: ["ACID/acid_{variant}.sql", Updates/*.sql, Updates/Instances/*.sql, locales/*.sql, utilities/cmangos_custom.sql]
+          claim: [ACID/**/*.sql, Updates/**/*.sql]
+        playerbots:
+          migrations: [sql/world/*.sql, "sql/world/{variant}/*.sql"]
+    characters:
+      remedy: manual
+      sources:
+        core: {migrations: [sql/base/characters.sql, sql/updates/characters/*.sql]}
+        playerbots:
+          migrations: [sql/characters/*.sql]
+          claim: [sql/characters/**/*.sql]
+    realmd:
+      remedy: manual
+      sources:
+        core: {migrations: [sql/base/realmd.sql, sql/updates/realmd/*.sql]}
+    logs:
+      remedy: manual
+      sources:
+        core: {migrations: [sql/base/logs.sql, sql/updates/logs/*.sql]}
+
+images:
+  - name: server
+    package: cmangos-server-{variant}
+    dockerfile: docker/server/Dockerfile
+    tags: ["{var:tag}"]
+    build-args:
+      CMANGOS_EXPANSION: "{variant}"
+      CMANGOS_CORE_REPOSITORY_URL: "{url:core}"
+      CMANGOS_CORE_REVISION: "{commit:core}"
+      CMANGOS_PLAYERBOTS_REPOSITORY_URL: "{url:playerbots}"
+      CMANGOS_PLAYERBOTS_REVISION: "{commit:playerbots}"
+      CMANGOS_FAIL_ON_PATCH_ERROR: "1"
+    oci:
+      title: cmangos-deploy - CMaNGOS {var:name} server image
+      description: CMaNGOS {var:name} is a server emulator supporting version {var:client-version}.
+      base-name: ubuntu:26.04
+      licenses: AGPL-3.0-or-later AND GPL-2.0-or-later
+      version: "{var:tag}"
+  - name: database
+    package: cmangos-database-{variant}
+    dockerfile: docker/database/Dockerfile
+    tags: ["{var:tag}"]
+    build-args:
+      CMANGOS_EXPANSION: "{variant}"
+      CMANGOS_CORE_REPOSITORY_URL: "{url:core}"
+      CMANGOS_CORE_REVISION: "{commit:core}"
+      CMANGOS_DATABASE_REPOSITORY_URL: "{url:db}"
+      CMANGOS_DATABASE_REVISION: "{commit:db}"
+      CMANGOS_PLAYERBOTS_REPOSITORY_URL: "{url:playerbots}"
+      CMANGOS_PLAYERBOTS_REVISION: "{commit:playerbots}"
+      CMANGOS_FAIL_ON_PATCH_ERROR: "1"
+      CMANGOS_MIGRATION_EDITS: "{migration-edits}"
+    oci:
+      title: cmangos-deploy - CMaNGOS {var:name} database image
+      description: Database for the CMaNGOS {var:name} server emulator.
+      base-name: mariadb:12.3
+      licenses: AGPL-3.0-or-later AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only
+      version: "{var:tag}"
+
+badges:
+  - {file: classic-build-badge.json, variant: classic, label: Latest CMaNGOS Classic build, message: "{var:tag}", color: blue}
+  - {file: tbc-build-badge.json, variant: tbc, label: Latest CMaNGOS TBC build, message: "{var:tag}", color: blue}
+  - {file: wotlk-build-badge.json, variant: wotlk, label: Latest CMaNGOS WotLK build, message: "{var:tag}", color: blue}
+  - {file: date-badge.json, label: Latest build date, message: "{timestamp}", color: orange}

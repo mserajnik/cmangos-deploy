@@ -1,0 +1,44 @@
+diff --git a/contrib/extractor_scripts/ExtractResources.sh b/contrib/extractor_scripts/ExtractResources.sh
+index d9fb23d..0f63f93 100755
+--- a/contrib/extractor_scripts/ExtractResources.sh
++++ b/contrib/extractor_scripts/ExtractResources.sh
+@@ -253,7 +253,16 @@ echo | tee -a "$DETAIL_LOG_FILE"
+ if [ "$USE_AD" = "1" ]
+ then
+  echo "$(date): Start extraction of DBCs and map files..." | tee -a "$LOG_FILE"
+- "$PREFIX"/ad $AD_RES $AD_OPT_RES | tee -a "$DETAIL_LOG_FILE"
++ # cmangos-deploy: keep the exit status of `ad` through `tee`, so a failed
++ # extraction stops the script.
++ file=$(mktemp)
++ { "$PREFIX"/ad $AD_RES $AD_OPT_RES; echo $? > "$file"; } | tee -a "$DETAIL_LOG_FILE"
++ exit_code=$(cat "$file")
++ rm "$file"
++ if [ "$exit_code" -ne "0" ]; then
++   echo "$(date): Extraction of DBCs and map files failed with errors. Aborting extraction. See the log file for more details."
++   exit "$exit_code"
++ fi
+  echo "$(date): Extracting of DBCs and map files finished" | tee -a "$LOG_FILE"
+  echo | tee -a "$LOG_FILE"
+  echo | tee -a "$DETAIL_LOG_FILE"
+diff --git a/contrib/extractor_scripts/MoveMapGen.sh b/contrib/extractor_scripts/MoveMapGen.sh
+index 477c07b..1e7df0f 100644
+--- a/contrib/extractor_scripts/MoveMapGen.sh
++++ b/contrib/extractor_scripts/MoveMapGen.sh
+@@ -96,7 +96,16 @@ fi
+ case "$1" in
+  "maps" )
+     createHeader
+-    "$PREFIX"/MoveMapGen $PARAMS $OFFMESH $MMG_RES --buildGameObjects | tee -a "$DETAIL_LOG_FILE"
++    # cmangos-deploy: keep the exit status of `MoveMapGen` through `tee`, so a
++    # failed extraction stops the script.
++    file=$(mktemp)
++    { "$PREFIX"/MoveMapGen $PARAMS $OFFMESH $MMG_RES --buildGameObjects; echo $? > "$file"; } | tee -a "$DETAIL_LOG_FILE"
++    exit_code=$(cat "$file")
++    rm "$file"
++    if [ "$exit_code" -ne "0" ]; then
++      echo "$(date): Creating MoveMaps failed with errors. Aborting extraction. See the log file for more details."
++      exit "$exit_code"
++    fi
+    ;;
+  "offmesh" )
+    echo "$(date): Recreate offmeshes from file $OFFMESH_FILE" | tee -a "$LOG_FILE"

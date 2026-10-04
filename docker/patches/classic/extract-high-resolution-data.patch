@@ -1,0 +1,26 @@
+diff --git a/contrib/extractor_scripts/ExtractResources.sh b/contrib/extractor_scripts/ExtractResources.sh
+index b455ad8..2c6f9c8 100755
+--- a/contrib/extractor_scripts/ExtractResources.sh
++++ b/contrib/extractor_scripts/ExtractResources.sh
+@@ -149,7 +149,9 @@ fi
+ 
+ ## Check if user want to do high resolution extraction of maps
+ if [ "$1" = "a" ]; then
+-  AD_RES=""
++  # cmangos-deploy: the unattended extraction produces high-resolution maps,
++  # for more accurate movement.
++  AD_RES="-f 0"
+ elif [ "$USE_AD" = "1" ]; then
+   echo
+   echo "Would you like the extraction of maps to be high-resolution? [y/N]"
+@@ -163,7 +165,9 @@ fi
+ 
+ ## Check if user want to do high resolution extraction of vmaps
+ if [ "$1" = "a" ]; then
+-  VMAP_RES=""
++  # cmangos-deploy: the unattended extraction produces high-resolution vmaps,
++  # for more accurate movement and line of sight.
++  VMAP_RES="-l"
+ elif [ "$USE_VMAPS" = "1" ]; then
+   echo
+   echo "Would you like the extraction of vmaps to be high-resolution? [y/N]"

@@ -1,0 +1,18 @@
+diff --git a/src/game/World/World.cpp b/src/game/World/World.cpp
+index e344c52..dfa0eb8 100644
+--- a/src/game/World/World.cpp
++++ b/src/game/World/World.cpp
+@@ -1527,11 +1527,8 @@ void World::Update(uint32 diff)
+ 
+     m_averageDiff = (uint32)(m_currentDiffSum / m_histDiff.size());
+ 
+-    if (m_currentDiffSumIndex && m_currentDiffSumIndex % 60 == 0)
+-    {
+-        sLog.outBasic("Avg Diff: %u. Sessions online: %u.", m_averageDiff, (uint32)GetActiveSessionCount());
+-        sLog.outBasic("Max Diff: %u.", m_maxDiff);
+-    }
++    // cmangos-deploy: the periodic tick statistics are left out, because they
++    // would otherwise spam the log.
+ 
+     if (m_currentDiffSum % 3000 == 0)
+     {

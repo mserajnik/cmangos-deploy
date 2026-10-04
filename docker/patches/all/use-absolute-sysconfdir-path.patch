@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ae3d8be..538084a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -391,7 +391,9 @@ else()
+ endif()
+ 
+ if(UNIX)
+-  add_compile_definitions(SYSCONFDIR="../${CONF_FOLDER_NAME}/")
++  # cmangos-deploy: an absolute path, so the servers find their configuration
++  # files whatever their working directory is.
++  add_compile_definitions(SYSCONFDIR="${CMAKE_INSTALL_PREFIX}/config/")
+ endif()
+ 
+ if(BUILD_GAME_SERVER OR BUILD_LOGIN_SERVER OR BUILD_EXTRACTORS)
