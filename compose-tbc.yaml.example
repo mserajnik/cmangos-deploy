@@ -50,11 +50,11 @@ services:
       - ./storage/tbc/realmd/logs:/opt/cmangos/storage/logs
     environment:
       - CMANGOS_DEPLOY_VERSION=1 # See `docs/breaking-changes.md`.
+      - TZ=Etc/UTC # The time zone, usually your host's.
       - CMANGOS_UID=1000 # On Linux, the owner of the writable bind mounts. Do not change it once the server has run.
       - CMANGOS_GID=1000 # On Linux, the group of the writable bind mounts. Do not change it once the server has run.
       - CMANGOS_DATABASE_USER=mangos # Must match `MARIADB_USER` of the `database` service.
       - CMANGOS_DATABASE_PASSWORD=mangos # Must match `MARIADB_PASSWORD` of the `database` service.
-      - TZ=Etc/UTC # The time zone, usually your host's.
 
   mangosd:
     # The `&mangosd-image` anchor is used by `check-deploy-version` and
@@ -89,11 +89,11 @@ services:
     # `extract-client-data` and has to stay.
     environment: &mangosd-environment
       - CMANGOS_DEPLOY_VERSION=1 # See `docs/breaking-changes.md`.
+      - TZ=Etc/UTC # The time zone, usually your host's.
       - CMANGOS_UID=1000 # On Linux, the owner of the writable bind mounts. Do not change it once the server has run.
       - CMANGOS_GID=1000 # On Linux, the group of the writable bind mounts. Do not change it once the server has run.
       - CMANGOS_DATABASE_USER=mangos # Must match `MARIADB_USER` of the `database` service.
       - CMANGOS_DATABASE_PASSWORD=mangos # Must match `MARIADB_PASSWORD` of the `database` service.
-      - TZ=Etc/UTC # The time zone, usually your host's.
 
   # These run only on demand. See `docs/usage.md`.
   check-deploy-version:
