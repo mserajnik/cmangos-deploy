@@ -29,8 +29,8 @@ directory under [`config/`](../config), and its own storage directory under
 Each image has a tag that names the three commits of its build, the core, the
 database, and Playerbot, as 7-character prefixes, such as
 `classic-core.8ec338a-db.ec4f596-playerbots.1bafc21`. Use such tags to pin your
-setup to a specific build. You have to give the server and the database image
-the same tag, so the code and the data match. The databases apply new
+installation to a specific build. You have to give the server and the database
+image the same tag, so the code and the data match. The databases apply new
 migrations on start, so an image older than the ones you ran before cannot work
 with them.
 
@@ -41,13 +41,11 @@ image after you first pulled it. If you need images based on specific CMaNGOS
 commits, you can build them yourself. The registry lists the current
 [images][image-cmangos-packages].
 
-## Client data
+## Extracting the client data
 
 The server needs data extracted from the game client for handling movement and
 line of sight. Use the client version that CMaNGOS supports for your chosen
 expansion, as the [expansions section](#expansions) lists.
-
-### Extracting the client data
 
 Copy the contents of your client directory into
 `storage/classic/mangosd/client-data/`. Then, to extract the data, run:
@@ -60,16 +58,21 @@ The command runs the image of the `mangosd` service as its user (see the
 [`extract-client-data` section](compose.md#extract-client-data)), so it
 extracts for your chosen expansion.
 
-The extraction can take many hours, and it prints some notices and errors while
-it runs that are normal as long as the command does not end with an error. The
-data ends up in `storage/classic/mangosd/extracted-data/`.
+The extraction writes the data into `storage/classic/mangosd/extracted-data/`
+and can take many hours. It prints some notices and errors while it runs that
+are normal as long as the command does not end with an error.
 
 If you already have extracted data from another source, put it into
 `storage/classic/mangosd/extracted-data/`. You can then skip the extraction.
 
-To extract again later, for example after CMaNGOS improves the movement data,
-run the same command. It asks before it overwrites the old data. To skip the
-question, add `--force` at the end of the command.
+You may want to extract again when CMaNGOS improves the extractors in some way.
+To do so, run the same command. It asks before it overwrites the old data. To
+skip the question, add `--force` at the end of the command.
+
+## Anticheat and Warden
+
+CMaNGOS's anticheat, including Warden, is enabled by default. The options in
+your `config/classic/anticheat.conf` adjust or disable it.
 
 ## Running CMaNGOS
 
@@ -197,16 +200,16 @@ containers:
 docker compose up -d
 ```
 
-If you pinned your setup to a specific build, the update only takes effect once
-you set newer tags.
+If you pinned your installation to a specific build, the update only takes
+effect once you set newer tags.
 
 On the first start after an update, the `database` service applies the new
 migrations to the databases. If a migration fails, the `database` service logs
 the error, and its automatic restart counts the migration as applied. The cause
-is a bug or something in your setup. Check the log for what failed, and decide
-for yourself how to continue. You likely have to restore a backup from before
-the update: remove the database volume with `docker compose down -v`, start
-again, and restore the backup as the
+is a bug or something in your installation. Check the log for what failed, and
+decide for yourself how to continue. You likely have to restore a backup from
+before the update: remove the database volume with `docker compose down -v`,
+start again, and restore the backup as the
 [restoring a backup section](#restoring-a-backup) shows.
 
 ### Updating your clone
@@ -297,11 +300,11 @@ uncomment it (see the
 
 > [!NOTE]
 > The Compose file leaves the world and logs databases out of the
-> `database-backup` service, because most personal setups likely do not care
-> enough about their contents to accept much larger backups. Apart from changes
-> you make to it yourself, the image can re-create the world database. The logs
-> database stores what the servers log to it. To back up either, add `mangos`
-> or `logs` to `DB_DUMP_INCLUDE`.
+> `database-backup` service, because most personal installations likely do not
+> care enough about their contents to accept much larger backups. Apart from
+> changes you make to it yourself, the image can re-create the world database.
+> The logs database stores what the servers log to it. To back up either, add
+> `mangos` or `logs` to `DB_DUMP_INCLUDE`.
 
 To create a backup right away, run:
 

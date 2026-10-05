@@ -620,7 +620,7 @@ ensure_maintenance_db_exists() {
 
   # Rewrite the rows that older images keyed by the database name, `mangos`.
   # TODO: Remove this once it is reasonable to assume that every existing
-  # install has received this change.
+  # installation has received this change.
   mariadb -u root -p"$MARIADB_ROOT_PASSWORD" "maintenance" -e \
     "UPDATE IGNORE \`migration_corrections\` SET \`db_name\` = 'world' \
      WHERE \`db_name\` = 'mangos';"
