@@ -20,16 +20,6 @@
 
 ---
 
-> [!TIP]
-> Also check out my similar Docker setups:
->
-> - [vmangos-deploy][vmangos-deploy] for [VMaNGOS][vmangos], a progressive
->   Vanilla server emulator that aims to eventually support all versions from
->   `1.2.4.4222` to `1.12.1.5875`.
-> - [tortoise-deploy][tortoise-deploy] for [Tortoise-WoW][tortoise-wow], a
->   community-driven restoration of Turtle WoW's `1.18.1.7272` patch with
->   additions for solo play.
-
 cmangos-deploy is a Docker-based solution for running [CMaNGOS][cmangos]. It
 offers:
 
@@ -203,6 +193,16 @@ Every patch adds a comment to the code it changes, which explains what the
 change does and why. A patch is removed once it is no longer needed, so the
 directory can be empty at times.
 
+## Similar Docker setups
+
+- [vmangos-deploy][vmangos-deploy] for [VMaNGOS][vmangos], a progressive
+  Vanilla WoW server emulator that aims to eventually support all versions from
+  `1.2.4.4222` to `1.12.1.5875`.
+- [tortoise-deploy][tortoise-deploy] for [Tortoise-WoW][tortoise-wow], a
+  community-driven restoration of Turtle WoW's `1.18.1.7272` patch.
+- [lost-city-rs-deploy][lost-city-rs-deploy] for [Lost City RS][lost-city-rs],
+  an RS2 server emulator that aims to re-create the original game accurately.
+
 ## Maintainer
 
 [Michael Serajnik][maintainer]
@@ -263,6 +263,8 @@ non-commercial use only and comes with no warranty.
 [license-fsfullrwd]: LICENSES/FSFULLRWD.txt
 [license-gpl-2.0-only]: LICENSES/GPL-2.0-only.txt
 [license-gpl-2.0-or-later]: LICENSES/GPL-2.0-or-later.txt
+[lost-city-rs]: https://github.com/LostCityRS
+[lost-city-rs-deploy]: https://github.com/mserajnik/lost-city-rs-deploy
 [maintainer]: https://github.com/mserajnik
 [playerbots]: https://github.com/cmangos/playerbots
 [pull-requests]: https://github.com/mserajnik/cmangos-deploy/pulls
