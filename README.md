@@ -11,8 +11,6 @@
 [![Latest WotLK build][badge-latest-wotlk-build]][badge-latest-wotlk-build-url]  
 [![Latest build date][badge-latest-build-date]][badge-latest-build-date-url]
 
-> A Docker setup for CMaNGOS
-
 ---
 
 > [!WARNING]
