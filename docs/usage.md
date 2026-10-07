@@ -1,11 +1,12 @@
 # Usage
 
-With cmangos-deploy, you choose Docker images for an expansion, extract the
-client data, run CMaNGOS with Docker Compose, and update it to get the latest
-CMaNGOS changes. The sections below describe each step in detail, and the tasks
-around them, such as backups. The [Docker Compose reference](compose.md)
-explains the settings. Every example uses Classic; for another expansion,
-replace `classic` with `tbc` or `wotlk`.
+To run CMaNGOS, you choose Docker images for an expansion, extract the client
+data, and start the server with Docker Compose. Later, you update it to get the
+latest CMaNGOS changes. The sections below describe each step, and other tasks
+such as creating accounts, making backups, and accessing the database. The
+[Docker Compose reference](compose.md) describes each setting in your
+`compose.yaml`. Every example uses Classic; for another expansion, replace
+`classic` with `tbc` or `wotlk`.
 
 ## Choosing images
 
@@ -189,9 +190,10 @@ docker compose run --rm check-deploy-version
 
 When the new images need configuration adjustments due to a
 [breaking change](breaking-changes.md), the check fails and names the version
-they expect. Make those adjustments first. The check reads
-`CMANGOS_DEPLOY_VERSION` of `mangosd`, so keep the number the same in every
-service.
+they expect. Make those adjustments first. The `check-deploy-version` service
+reads only `CMANGOS_DEPLOY_VERSION` of `mangosd`. The `database`, `realmd`, and
+`mangosd` services also each check their own value when they start, so you have
+to set the same number in all three.
 
 If the check passes and prints that the variable matches, re-create the
 containers:

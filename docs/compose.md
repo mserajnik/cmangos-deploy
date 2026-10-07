@@ -4,11 +4,15 @@ Your `compose.yaml` starts as a copy of the example Compose file for your
 chosen expansion:
 [`compose-classic.yaml.example`](../compose-classic.yaml.example),
 [`compose-tbc.yaml.example`](../compose-tbc.yaml.example), or
-[`compose-wotlk.yaml.example`](../compose-wotlk.yaml.example). It configures
-every service of the setup, and the tables below describe each of its settings.
-The example files differ only in the expansion's name, and Classic's `mangosd`
-service mounts one more configuration file. The examples below use Classic; for
-another expansion, replace `classic` with `tbc` or `wotlk`.
+[`compose-wotlk.yaml.example`](../compose-wotlk.yaml.example). The example
+files differ only in the expansion's name, and Classic's `mangosd` service
+mounts one more configuration file. The examples below use Classic; for another
+expansion, replace `classic` with `tbc` or `wotlk`.
+
+For each service, the [services section](#services) below has a table of its
+keys, such as `image` and `volumes`, and, if it has any, a table of its
+environment variables with their default values. The sections after it explain
+some settings in more detail.
 
 > [!WARNING]
 > Where a setting needs a specific value for the setup to work, its description
