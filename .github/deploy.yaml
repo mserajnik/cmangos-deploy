@@ -51,7 +51,7 @@ variants:
 vars:
   tag: "{variant}-core.{short-commit:core}-db.{short-commit:db}-playerbots.{short-commit:playerbots}"
 
-drift:
+diff:
   upstreams:
     # Bump the commit in `docker/database/Dockerfile` and in the header of
     # `docker/database/docker-entrypoint.sh` along with this pin.
