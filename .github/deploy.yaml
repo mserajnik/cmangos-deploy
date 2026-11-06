@@ -12,9 +12,9 @@ sources:
     repository: cmangos/mangos-{variant}
     branch: master
     pins:
-      classic: 267ce7166eb0a8045c1eec6e6cbdd81b5f82faf8
-      tbc: e7ece149b99f6427acb7c13202cc6a5c96f63a94
-      wotlk: dd4809469f9c03d0e379f2cf0e93de2b636802ce
+      classic: c633638e8d08a9c2e408c93743720f5f65e420fb
+      tbc: 568409a84c6d46be3b0f2f1fb03f48acba7ca39c
+      wotlk: 56200e027dd5bbe64968f06bb9d81e578732085f
     cutoffs:
       classic: 1aea167db3494eb4fe9667227b886d2f662627f6
       tbc: 9eec6120a4a3098ed6d909e34334c9b0fb2ffb3b
