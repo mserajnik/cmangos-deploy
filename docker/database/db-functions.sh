@@ -30,8 +30,7 @@ clear_change_sentinels() {
   rm -f /tmp/cmangos-changes-pending /tmp/cmangos-changes-acknowledged
 }
 
-# A data directory with the first marker is from a first start that did not
-# finish.
+# A data directory with the first marker is from a setup that did not finish.
 INITIALIZING_MARKER="/var/lib/mysql/.cmangos-deploy-initializing"
 INITIALIZED_MARKER="/var/lib/mysql/.cmangos-deploy-initialized"
 
@@ -58,7 +57,7 @@ require_initialized() {
     return 0
   fi
 
-  cmangos_fail "The databases are not set up completely. If this is a new installation, remove the database volume and start again. Otherwise, the volume contains your characters: remove it only if you have a backup, and restore the backup after the new start:
+  cmangos_fail "The databases are not set up completely. If this is a new installation, remove the database volume and run 'docker compose up -d' again. Otherwise, the volume contains your characters: remove it only if you have a backup, and restore the backup once the databases are set up again:
 https://github.com/mserajnik/cmangos-deploy/blob/master/docs/usage.md#restoring-a-backup"
 }
 
@@ -208,10 +207,11 @@ apply_tracked_sql_file() {
   cmangos_log "Applying the tracked SQL file '$description' to the '$db_name' database..."
   table_name="$(tracking_table_name)"
   escaped_key="$(sql_escape "$sql_key")"
-  # The file and its record share one session, so a stop cannot fall between
-  # them. The `mariadb` client stops at the first failed statement, which
-  # leaves a failed file unrecorded. `set -e` does not apply in the condition,
-  # so a failed `cat` ends the group itself, before the record.
+  # The file and its record share one session, so the script cannot exit
+  # between them when Docker stops the container. The `mariadb` client stops at
+  # the first failed statement, which leaves the file unrecorded. `set -e` does
+  # not apply in the condition, so a failed `cat` ends the group itself, before
+  # the record.
   if ! {
     cat "$file" || exit
     echo
@@ -745,11 +745,12 @@ process_world_corrections() {
     return 0
   fi
 
-  # Leave the edit unacknowledged. The warning then repeats on every start.
+  # Leave the edit unacknowledged. The warning then repeats every time the
+  # container starts.
   local repository
   for i in "${pending[@]}"; do
     repository="$(correction_source_repository "${MIGRATION_EDIT_SOURCES[i]}")"
-    cmangos_log "WARNING: The world database has a migration edit ($repository@${MIGRATION_EDIT_COMMITS[i]:0:7}), but both 'CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS' and 'CMANGOS_HALT_ON_MIGRATION_EDITS' are disabled. The start continues, and the world database stays in an inconsistent state. The server may misbehave or fail to start." >&2
+    cmangos_log "WARNING: The world database has a migration edit ($repository@${MIGRATION_EDIT_COMMITS[i]:0:7}), but both 'CMANGOS_ENABLE_AUTOMATIC_WORLD_DB_CORRECTIONS' and 'CMANGOS_HALT_ON_MIGRATION_EDITS' are disabled. The 'database' service does not halt, and the world database stays in an inconsistent state. The 'mangosd' service may misbehave or fail to start." >&2
   done
 }
 
@@ -789,17 +790,19 @@ process_userstate_corrections() {
       continue
     fi
 
-    # Leave the edit unacknowledged. The warning then repeats on every start.
+    # Leave the edit unacknowledged. The warning then repeats every time the
+    # container starts.
     repository="$(correction_source_repository "$source_name")"
     database_name="$(correction_database_name "$db_name")"
-    cmangos_log "WARNING: The '$database_name' database has a migration edit ($repository@${commit_hash:0:7}), but 'CMANGOS_HALT_ON_MIGRATION_EDITS' is disabled. The start continues, and the database stays in an inconsistent state." >&2
+    cmangos_log "WARNING: The '$database_name' database has a migration edit ($repository@${commit_hash:0:7}), but 'CMANGOS_HALT_ON_MIGRATION_EDITS' is disabled. The 'database' service does not halt, and the '$database_name' database stays in an inconsistent state." >&2
   done
 }
 
 print_correction_halt_message() {
   cat >&2 <<'EOF'
 [cmangos-deploy]: ERROR: Migration edits affect your databases.
-cmangos-deploy does not handle these edits for you. The start is halted.
+cmangos-deploy does not handle these edits for you. CMaNGOS does not start
+until you handle them and confirm, as described below.
 
 The edits, each with the name of the database it affects:
 EOF
@@ -823,19 +826,26 @@ EOF
 
   cat >&2 <<'EOF'
 
+The SQL you run changes your databases directly. If something goes wrong, only
+a backup from before the update can restore them. The restore needs the
+'database' service to run normally, so confirm first, then restore the backup
+as the documentation describes.
+
 For each edit above:
 
   1. Open its GitHub link to see what changed.
   2. Make the edit's changes yourself in the affected database. The 'database'
      service does not apply an edited migration again, so the database still
      matches the result of the old version. Run the SQL that changes it to the
-     result of the new version. To open the database, run on the host:
+     result of the new version.
+
+     To open the database, run on the host:
 
        docker compose exec database mariadb -u root -p <database>
 
-     (The MariaDB client prompts for the password, which matches your
-     'MARIADB_ROOT_PASSWORD' setting in your 'compose.yaml'. To leave the
-     client, run 'exit'.)
+     (The MariaDB client prompts for the password, which is
+     'MARIADB_ROOT_PASSWORD' from your 'compose.yaml'. To leave the client, run
+     'exit'.)
 
      You can ignore an edit to a migration that has not been applied to the
      database yet. The documentation shows how to check:
@@ -845,18 +855,17 @@ When you have handled every edit above, confirm by running on the host:
 
   docker compose exec database cmangos-confirm-changes
 
-To cancel the start and handle the edits later instead, run on the host:
+To stop the containers and handle the edits later, run on the host:
 
   docker compose down
 
-While the start is halted, MariaDB is reachable only inside the container,
-through its socket, and not on port 3306. CMaNGOS stays offline until you
-confirm, so take as long as you need.
+Until you confirm, MariaDB is reachable only inside the container, through its
+socket, and not on port 3306.
 
-Note: When you confirm, cmangos-deploy treats the listed commits as applied and
-continues. It does not check your databases to verify that the changes you made
-match what the commits describe. If your manual fix is incorrect or incomplete,
-the affected database is left in an inconsistent state and CMaNGOS may fail to
+Note: When you confirm, cmangos-deploy treats the listed commits as applied. It
+does not check your databases to verify that the changes you made match what
+the commits describe. If your manual fix is incorrect or incomplete, the
+affected database is left in an inconsistent state and CMaNGOS may fail to
 start. The responsibility for matching what the commits do is yours, and
 cmangos-deploy provides no further support for individual cases.
 EOF
@@ -871,8 +880,8 @@ wait_for_change_ack() {
 
   rm -f /tmp/cmangos-changes-pending
 
-  # `cmangos-confirm-changes` waits for the receipt, because a later start
-  # deletes the acknowledgement too.
+  # `cmangos-confirm-changes` waits for the receipt, because the next container
+  # start deletes the acknowledgement too.
   mv /tmp/cmangos-changes-acknowledged /tmp/cmangos-changes-consumed
 }
 
@@ -889,7 +898,7 @@ process_custom_sql() {
   fi
 
   if [[ ! -r "$file_directory" ]] || [[ ! -x "$file_directory" ]]; then
-    cmangos_fail "The custom SQL file directory '$file_directory' is not readable by the 'mysql' user (UID $(id -u)). This is a permission problem on the host: the bind-mounted directory must be readable by that user. Adjust the permissions, then restart."
+    cmangos_fail "The custom SQL file directory '$file_directory' is not readable by the 'mysql' user (UID $(id -u)). This is a permission problem on the host: the bind-mounted directory must be readable by that user. Adjust the permissions, then run 'docker compose up -d' on the host."
   fi
 
   # Check `find` on its own, so a failure says which step failed. The names are

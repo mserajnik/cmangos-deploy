@@ -1,7 +1,7 @@
 # cmangos-deploy: this file differs from the `mangosd.conf.dist.in` of CMaNGOS
 # in the options below, which it leaves out, because the image sets them and
-# ignores them in this file. Adding one back has no effect, and neither has an
-# environment variable for one.
+# ignores them in this file. Adding any of these options back or setting them
+# through an environment variable has no effect.
 #
 # - `DataDir` and `LogsDir`: the directories under `/opt/cmangos/storage/` that
 #   your `compose.yaml` mounts.

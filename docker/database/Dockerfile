@@ -45,9 +45,9 @@ RUN \
   git checkout "$CMANGOS_PLAYERBOTS_REVISION" && \
   cd /build/core && \
   patch_count=0 && \
-  # Patches in `all/` apply to every expansion, those in `<expansion>/` to that
-  # one. Top-level patches apply to the core, those in `database/` and
-  # `playerbots/` to that repository. Every directory is optional.
+  # Patches in `all/` apply to every expansion, those in `<expansion>/` only to
+  # that expansion. Top-level patches apply to the core, those in `database/`
+  # and `playerbots/` to that repository. Every directory is optional.
   for patch in \
     /build/patches/all/*.patch \
     /build/patches/"$CMANGOS_EXPANSION"/*.patch \

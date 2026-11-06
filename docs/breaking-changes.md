@@ -3,9 +3,9 @@
 Some updates require you to adjust your configuration. These breaking changes
 are listed below, newest first.
 
-Every Docker image checks `CMANGOS_DEPLOY_VERSION` on startup. Each breaking
-change raises the number that the images expect by one, and thus prevents
-installations that lack the necessary adjustments for the breaking change from
+Every Docker image checks `CMANGOS_DEPLOY_VERSION` when one of its containers
+starts. Each breaking change raises the number that the images expect by one,
+and thus prevents installations that lack the necessary adjustments from
 starting.
 
 To update across a version, first refresh your clone of this repository, as the
@@ -51,12 +51,12 @@ Version 1 brings these changes:
   `anticheat.conf.example` list them in their headers. The container ports of
   the `realmd` and `mangosd` services are now always the defaults, and no
   longer configurable.
-- The example `database` service now has `stop_grace_period: 2m`, so a stop
-  during startup lets the running step finish.
+- The example `database` service now has `stop_grace_period: 2m`, so a running
+  import or update can finish when Docker stops the container.
 - The example `database-backup` service now also backs up the record of
   confirmed migration edits in the `maintenance` database.
-- Every image now checks `CMANGOS_DEPLOY_VERSION` on startup and stops when it
-  is missing or different.
+- Every container now refuses to start when `CMANGOS_DEPLOY_VERSION` is missing
+  or different.
 - The example Compose files have tool services for the version check and the
   client data extraction, which the [usage documentation](usage.md) describes.
 
